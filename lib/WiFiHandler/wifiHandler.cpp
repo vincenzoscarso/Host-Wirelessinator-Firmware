@@ -29,9 +29,6 @@ void wifiSetup() {
 	printInfoMessage("wifiSetup procedure ended");
 }
 
-void wifiLoop() {
-}
-
 String __getWifiStatus() {
 	String wifi_status;
 
