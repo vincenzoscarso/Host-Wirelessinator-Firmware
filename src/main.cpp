@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <componentHandler.h>
-#include <httpServerHandler.h>
+#include <serverHandler.h>
 #include <logHandler.h>
 #include <wifiHandler.h>
 
@@ -15,11 +15,11 @@ void setup() {
 
 	componentsSetup();
 	wifiSetup();
-	httpServerSetup();
+	serverSetup();
 
 	printInfoMessage("Setup procedure ended");
 }
 
 void loop() {
-	httpServerLoop();
+	serverLoop();
 }

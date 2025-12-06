@@ -24,7 +24,6 @@ void wifiSetup() {
 		}
 	} while (__wifi_status != WL_CONNECTED);
 	printInfoMessage("Successfully obtained a WiFi connection: {%s}", __getWifiStatus().c_str());
-	setLedBuiltInStatus(HIGH);
 
 	printInfoMessage("wifiSetup procedure ended");
 }

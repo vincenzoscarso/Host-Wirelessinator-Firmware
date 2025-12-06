@@ -2,11 +2,15 @@
 	"folders": [
 		{
 			"path": ".."
+		},
+		{
+			"path": "../../Host-WirelessInator-GUI"
 		}
 	],
 	"settings": {
 		"files.associations": {
 			"wifi.h": "c"
-		}
+		},
+		"liveServer.settings.multiRootWorkspaceName": "Host-WirelessInator-GUI"
 	}
 }

@@ -1,0 +1,10 @@
+#ifndef SERVERHANDLER_H
+#define SERVERHANDLER_H
+
+#define SERVER_PORT (55555)
+
+/** MUST BE CALLED AFTER A WIFI CONNECTION IS ENSTABILISHED */
+void serverSetup();
+void serverLoop();
+
+#endif /* SERVERHANDLER_H */
