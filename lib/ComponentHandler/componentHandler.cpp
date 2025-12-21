@@ -1,9 +1,11 @@
 #include <componentHandler.h>
+#include <Hosts.h>
 
 void __pinsSetup();
 
 void componentsSetup() {
 	__pinsSetup();
+	Hosts::updateHostsVector();
 }
 
 #ifdef LED_BUILTIN

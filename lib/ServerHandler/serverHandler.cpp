@@ -1,13 +1,16 @@
 #include <ArduinoWebsockets.h>
+#include <Hosts.h>
 #include <WiFi.h>
+#include <commandHandler.h>
 #include <componentHandler.h>
 #include <serverHandler.h>
+#include <utils.h>
 
-using namespace websockets;
+websockets::WebsocketsServer server;
 
-WebsocketsServer server;
-
-void __handleClientRequest(WebsocketsClient client);
+void __handleClientRequest(websockets::WebsocketsClient client);
+void __handleCommand(const std::string& message);
+bool __isHostNameValid(const std::string& host_name);
 
 void serverSetup() {
 	printInfoMessage("Starting serverSetup procedure...");
@@ -35,18 +38,25 @@ void serverSetup() {
 }
 
 void serverLoop() {
-	WebsocketsClient client = server.accept();
+	websockets::WebsocketsClient client = server.accept();
 	__handleClientRequest(client);
-	delay(1000);
 }
 
-void __handleClientRequest(WebsocketsClient client) {
+void __handleClientRequest(websockets::WebsocketsClient client) {
 	if (client.available()) {
-		WebsocketsMessage message = client.readBlocking();
-		printInfoMessage("New request from a client");
+		websockets::WebsocketsMessage raw_message = client.readBlocking();
+
+		if (!raw_message.isText()) {
+			printErrorMessage("The message received from the client is not text, skipping");
+			return;
+		}
+
+		std::string str_message = utils::toStdString(raw_message.c_str());
+
+		printInfoMessage("New request from a client, got command: %s", str_message.c_str());
 		blinkLedBuiltIn(1);
 
-		printInfoMessage("Got Message:\n%s", message.data().c_str());
+		__handleCommand(str_message);
 
 		client.send("Hello World!");
 
@@ -54,14 +64,28 @@ void __handleClientRequest(WebsocketsClient client) {
 	}
 }
 
-bool __checkForCommand(const char* message) {
-	/**
-	 * Boot {host_id}
-	 * Reboot {host_id}
-	 * ForceShutdown {host_id}
-	 * GetStatus {host_id}
-	 * Informations
-	 * Help
-	 */
+void __handleCommand(const std::string& message) {
+	std::string command_name = "";
+	std::string host_name = "";
 
+	std::istringstream string_stream(message);
+	string_stream >> command_name >> host_name;
+
+	if (!__isHostNameValid(host_name)) {
+		printErrorMessage("Invalid host name '%s'", host_name);
+		return;
+	}
+
+	if (!commandHandler::checkForCommandAndExcecute(command_name, host_name)) {
+		printErrorMessage("Unknown command: %s", message);
+	}
+}
+
+bool __isHostNameValid(const std::string& host_name) {
+	for (int i = 0; i < Hosts::getNumberOfHosts(); i++) {
+		if (host_name == Hosts::hosts[i].getName()) {
+			return true;
+		}
+	}
+	return false;
 }

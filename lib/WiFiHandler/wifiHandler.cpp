@@ -6,7 +6,6 @@
 
 int __wifi_status = WL_IDLE_STATUS;
 
-static void __handleClientRequest(WiFiClient client);
 static String __getWifiStatus();
 
 void wifiSetup() {
@@ -14,7 +13,7 @@ void wifiSetup() {
 	WiFi.setHostname(HOST_NAME);
 
 	do {
-		WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+		WiFi.begin(secrets::WIFI_SSID.c_str(), secrets::WIFI_PASSWORD.c_str());
 		__wifi_status = WiFi.waitForConnectResult();
 
 		if (__wifi_status != WL_CONNECTED) {
