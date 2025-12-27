@@ -14,7 +14,7 @@ void setup() {
 	printInfoMessage("Starting setup procedure...");
 
 	componentsSetup();
-	wifiSetup();
+	WifiHandler::wifiSetup();
 	serverSetup();
 
 	printInfoMessage("Setup procedure ended");

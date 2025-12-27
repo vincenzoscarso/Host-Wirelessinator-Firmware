@@ -1,5 +1,7 @@
 #include <Host.h>
 #include <iostream>
+#include <logHandler.h>
+#include <utils.h>
 
 Host::Host(
     std::string name,
@@ -7,13 +9,17 @@ Host::Host(
     bool use_relay,
     int relay_pin,
     bool use_magic_packet,
-    std::string ip_address) {
+    std::string mac_address) {
 	this->__name = name;
 	this->__type = type;
 	this->__use_relay = use_relay;
 	this->__relay_pin = relay_pin;
 	this->__use_magic_packet = use_magic_packet;
-	this->__ip_address = ip_address;
+	try {
+		this->__mac_address = utils::convertStringVectorToByteVector(utils::split(mac_address, ':'));
+	} catch (const std::exception& e) {
+		printErrorMessage(e.what());
+	}
 }
 
 std::string Host::getName() {
@@ -36,6 +42,6 @@ bool Host::isUseMagicPacketEnabled() {
 	return this->__use_magic_packet;
 }
 
-std::string Host::getIpAddress() {
-	return this->__ip_address;
+std::vector<byte> Host::getMacAddress() {
+	return this->__mac_address;
 }

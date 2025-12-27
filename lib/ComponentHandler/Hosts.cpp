@@ -2,6 +2,7 @@
 #include <logHandler.h>
 #include <secrets.h>
 #include <toml++/toml.hpp>
+#include <stdexcept>
 
 std::vector<Host> Hosts::hosts;
 
@@ -15,15 +16,15 @@ bool Hosts::updateHostsVector() {
 
 	for (int i = 0; i < Hosts::getNumberOfHosts(); i++) {
 		std::string key = std::to_string(i);
-		
+
 		try {
 			hosts.emplace_back(
-				__get_hosts_table()[key]["name"].value_or<std::string>(""),
-				__get_hosts_table()[key]["type"].value_or<std::string>(""),
-				__get_hosts_table()[key]["control_options"]["use_relay"].value_or<bool>(false),
-				__get_hosts_table()[key]["control_options"]["relay_pin"].value_or<int>(-1),
-				__get_hosts_table()[key]["control_options"]["use_magic_packet"].value_or<bool>(false),
-				__get_hosts_table()[key]["control_options"]["ip_address"].value_or<std::string>(""));
+			    __get_hosts_table()[key]["name"].value_or<std::string>(""),
+			    __get_hosts_table()[key]["type"].value_or<std::string>(""),
+			    __get_hosts_table()[key]["control_options"]["use_relay"].value_or<bool>(false),
+			    __get_hosts_table()[key]["control_options"]["relay_pin"].value_or<int>(-1),
+			    __get_hosts_table()[key]["control_options"]["use_magic_packet"].value_or<bool>(false),
+			    __get_hosts_table()[key]["control_options"]["mac_address"].value_or<std::string>(""));
 		} catch (const std::exception& e) {
 			printErrorMessage("Failed to obtain values from the table: %s", e.what());
 			return false;
@@ -38,6 +39,24 @@ bool Hosts::updateHostsVector() {
  */
 int Hosts::getNumberOfHosts() {
 	return __get_hosts_table()["number_of_hosts"].value_or<int>(0);
+}
+
+bool Hosts::isHostNameValid(const std::string& host_name) {
+	for (int i = 0; i < Hosts::getNumberOfHosts(); i++) {
+		if (host_name == Hosts::hosts[i].getName()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+int Hosts::getHostVectorIndexFromHostName(const std::string& host_name) {
+	for (int i = 0; i < Hosts::getNumberOfHosts(); i++) {
+		if (host_name == Hosts::hosts[i].getName()) {
+			return i;
+		}
+	}
+	throw std::invalid_argument("Couldn't find the host object: inexistent host name");
 }
 
 static toml::parse_result& __get_hosts_table() {

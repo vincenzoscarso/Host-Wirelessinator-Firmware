@@ -10,7 +10,6 @@ websockets::WebsocketsServer server;
 
 void __handleClientRequest(websockets::WebsocketsClient client);
 void __handleCommand(const std::string& message);
-bool __isHostNameValid(const std::string& host_name);
 
 void serverSetup() {
 	printInfoMessage("Starting serverSetup procedure...");
@@ -71,21 +70,8 @@ void __handleCommand(const std::string& message) {
 	std::istringstream string_stream(message);
 	string_stream >> command_name >> host_name;
 
-	if (!__isHostNameValid(host_name)) {
-		printErrorMessage("Invalid host name '%s'", host_name);
-		return;
-	}
-
 	if (!commandHandler::checkForCommandAndExcecute(command_name, host_name)) {
-		printErrorMessage("Unknown command: %s", message);
+		printErrorMessage("Unknown command: %s", message.c_str());
 	}
 }
 
-bool __isHostNameValid(const std::string& host_name) {
-	for (int i = 0; i < Hosts::getNumberOfHosts(); i++) {
-		if (host_name == Hosts::hosts[i].getName()) {
-			return true;
-		}
-	}
-	return false;
-}
