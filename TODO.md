@@ -7,3 +7,7 @@
 - [x] Switch the toml configs with json configs
 - [ ] Add "GetJsonConfigs": a command that can send the json configs to the web interface
 - [ ] Improve the web interface and add it to the repository
+
+## LATER:
+- [ ] Add a README
+- [ ] Add a documentation
