@@ -9,7 +9,7 @@
 websockets::WebsocketsServer server;
 
 void __handleClientRequest(websockets::WebsocketsClient client);
-void __handleCommand(const std::string& message);
+void __handleCommand(websockets::WebsocketsClient client, const std::string& message);
 
 void serverSetup() {
 	printInfoMessage("Starting serverSetup procedure...");
@@ -27,11 +27,11 @@ void serverSetup() {
 
 		printInfoMessage("Failed to start the server");
 		while (1)
-			blinkLedBuiltIn(1);
+			componentHandler::blinkLedBuiltIn(1);
 	}
 
 	printInfoMessage("The server is online");
-	setLedBuiltInStatus(HIGH);
+	componentHandler::setLedBuiltInStatus(HIGH);
 
 	printInfoMessage("serverSetup procedure ended");
 }
@@ -53,9 +53,9 @@ void __handleClientRequest(websockets::WebsocketsClient client) {
 		std::string str_message = utils::toStdString(raw_message.c_str());
 
 		printInfoMessage("New request from a client, got command: %s", str_message.c_str());
-		blinkLedBuiltIn(1);
+		componentHandler::blinkLedBuiltIn(1);
 
-		__handleCommand(str_message);
+		__handleCommand(client, str_message);
 
 		client.send("Hello World!");
 
@@ -63,15 +63,14 @@ void __handleClientRequest(websockets::WebsocketsClient client) {
 	}
 }
 
-void __handleCommand(const std::string& message) {
+void __handleCommand(websockets::WebsocketsClient client, const std::string& message) {
 	std::string command_name = "";
 	std::string host_name = "";
 
 	std::istringstream string_stream(message);
 	string_stream >> command_name >> host_name;
 
-	if (!commandHandler::checkForCommandAndExcecute(command_name, host_name)) {
+	if (!commandHandler::checkForCommandAndExcecute(client, command_name, host_name)) {
 		printErrorMessage("Unknown command: %s", message.c_str());
 	}
 }
-

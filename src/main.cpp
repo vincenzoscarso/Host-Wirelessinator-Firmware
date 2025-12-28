@@ -13,7 +13,7 @@ void setup() {
 
 	printInfoMessage("Starting setup procedure...");
 
-	componentsSetup();
+	componentHandler::componentsSetup();
 	WifiHandler::wifiSetup();
 	serverSetup();
 

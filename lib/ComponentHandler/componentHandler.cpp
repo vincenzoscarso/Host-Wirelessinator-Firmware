@@ -1,20 +1,21 @@
-#include <componentHandler.h>
 #include <Hosts.h>
+#include <componentHandler.h>
 
 void __pinsSetup();
+void __hostsRelayPinsSetup();
 
-void componentsSetup() {
-	__pinsSetup();
+void componentHandler::componentsSetup() {
 	Hosts::updateHostsVector();
+	__pinsSetup();
 }
 
 #ifdef LED_BUILTIN
 
-void setLedBuiltInStatus(uint8_t value) {
+void componentHandler::setLedBuiltInStatus(uint8_t value) {
 	digitalWrite(LED_BUILTIN, value);
 }
 
-void blinkLedBuiltIn(int ripetitions) {
+void componentHandler::blinkLedBuiltIn(int ripetitions) {
 	int i = 0;
 	while (i < ripetitions) {
 		digitalWrite(LED_BUILTIN, LOW);
@@ -27,15 +28,19 @@ void blinkLedBuiltIn(int ripetitions) {
 
 #else /* LED_BUILTIN */
 
-void setLedBuiltInStatus(uint8_t value) {
+void componentHandler::setLedBuiltInStatus(uint8_t value) {
 	return;
 }
 
-void blinkLedBuiltIn(int ripetitions) {
+void bcomponentHandler::linkLedBuiltIn(int ripetitions) {
 	return;
 }
 
 #endif /* LED_BUILTIN */
+
+void componentHandler::setHostRelayPinStatus(Host host, byte value) {
+	digitalWrite(host.getRelayPin(), value);
+}
 
 void __pinsSetup() {
 	printInfoMessage("Starting pins setup procedure...");
@@ -45,5 +50,16 @@ void __pinsSetup() {
 	digitalWrite(LED_BUILTIN, LOW);
 #endif /* LED_BUILTIN */
 
+	__hostsRelayPinsSetup();
+
 	printInfoMessage("Pins setup procedure ended");
+}
+
+void __hostsRelayPinsSetup() {
+	for (Host h : Hosts::hosts) {
+		int relay_pin = h.getRelayPin();
+		if (h.isUseRelayPinEnabled() && relay_pin > -1) {
+			pinMode(relay_pin, OUTPUT);
+		}
+	}
 }

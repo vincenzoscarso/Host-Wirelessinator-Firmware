@@ -1,20 +1,12 @@
 #include <Host.h>
 #include <Hosts.h>
 #include <commandHandler.h>
+#include <componentHandler.h>
 #include <iostream>
 #include <logHandler.h>
 #include <map>
 #include <string>
 #include <wifiHandler.h>
-
-/**
- * Boot {host_name}
- * Reboot {host_name}
- * ForceShutdown {host_name}
- * GetStatus {host_name}
- * Informations
- * Help
- */
 
 #define __STR_COMMAND_BOOT "Boot"
 #define __STR_COMMAND_REBOOT "Reboot"
@@ -23,21 +15,21 @@
 #define __STR_COMMAND_INFORMATIONS "Informations"
 #define __STR_COMMAND_HELP "Help"
 
-void __handleBootCommand(Host host);
-void __handleRebootCommand(Host host);
-void __handleForceShutdownCommand(Host host);
-void __handleGetStatusCommand(Host host);
-void __handleInformationsCommand();
-void __handleHelpCommand();
+void __handleBootCommand(websockets::WebsocketsClient client, Host host);
+void __handleRebootCommand(websockets::WebsocketsClient client, Host host);
+void __handleForceShutdownCommand(websockets::WebsocketsClient client, Host host);
+void __handleGetStatusCommand(websockets::WebsocketsClient client, Host host);
+void __handleInformationsCommand(websockets::WebsocketsClient client);
+void __handleHelpCommand(websockets::WebsocketsClient client);
 
-std::map<std::string, void (*)(Host)> commands_map = {
+std::map<std::string, void (*)(websockets::WebsocketsClient, Host)> commands_map = {
 	{ __STR_COMMAND_BOOT, __handleBootCommand },
 	{ __STR_COMMAND_REBOOT, __handleRebootCommand },
 	{ __STR_COMMAND_FORCESHUTDOWN, __handleForceShutdownCommand },
 	{ __STR_COMMAND_GETSTATUS, __handleGetStatusCommand }
 };
 
-bool commandHandler::checkForCommandAndExcecute(const std::string& command_name, const std::string& host_name) {
+bool commandHandler::checkForCommandAndExcecute(websockets::WebsocketsClient client, const std::string& command_name, const std::string& host_name) {
 	auto command = commands_map.find(command_name);
 
 	if (command != commands_map.end()) {
@@ -46,40 +38,60 @@ bool commandHandler::checkForCommandAndExcecute(const std::string& command_name,
 			return false;
 		}
 
-		command->second(Hosts::hosts[Hosts::getHostVectorIndexFromHostName(host_name)]);
+		command->second(client, Hosts::hosts[Hosts::getHostVectorIndexFromHostName(host_name)]);
 	} else if (command_name.compare(__STR_COMMAND_INFORMATIONS) == 0) {
-		__handleInformationsCommand();
+		__handleInformationsCommand(client);
 	} else if (command_name.compare(__STR_COMMAND_HELP) == 0) {
-		__handleHelpCommand();
+		__handleHelpCommand(client);
 	} else {
 		return false;
 	}
 	return true;
 }
 
-void __handleBootCommand(Host host) {
+/*============
+    Handlers
+  ============*/
+
+void __handleBootCommand(websockets::WebsocketsClient client, Host host) {
 	printInfoMessage("Booting system on host: %s", host.getName().c_str());
+
 	if (host.isUseMagicPacketEnabled()) {
 		WifiHandler::sendMagicPacket(host.getMacAddress());
+	} else if (host.isUseRelayPinEnabled()) {
+		componentHandler::setHostRelayPinStatus(host, HIGH);
+		delay(1000);
+		componentHandler::setHostRelayPinStatus(host, LOW);
+	} else {
+		printErrorMessage("Couldn't find a method to boot this host, check configuration");
 	}
 }
 
-void __handleRebootCommand(Host host) {
-	printInfoMessage("Rebooting system on host: %s", host.getName().c_str());
+void __handleRebootCommand(websockets::WebsocketsClient client, Host host) {
+	printErrorMessage("Reboot command is currently not implemented");
 }
 
-void __handleForceShutdownCommand(Host host) {
+void __handleForceShutdownCommand(websockets::WebsocketsClient client, Host host) {
 	printInfoMessage("Force shutting down system on host: %s", host.getName().c_str());
+
+	if (host.isUseRelayPinEnabled()) {
+		componentHandler::setHostRelayPinStatus(host, HIGH);
+		delay(5000);
+		componentHandler::setHostRelayPinStatus(host, LOW);
+	} else {
+		printErrorMessage("Couldn't force-shutdown this host: relay needed, check configuration");
+	}
 }
 
-void __handleGetStatusCommand(Host host) {
-	printInfoMessage("Getting status from host: %s", host.getName().c_str());
+void __handleGetStatusCommand(websockets::WebsocketsClient client, Host host) {
+	printErrorMessage("GetStatus command is currently not implemented");
+	
 }
 
-void __handleInformationsCommand() {
-	printInfoMessage("-- INFORMATIONS --");
+void __handleInformationsCommand(websockets::WebsocketsClient client) {
+	printErrorMessage("Informations command is currently not implemented");
 }
 
-void __handleHelpCommand() {
-	printInfoMessage("-- HELP --");
+void __handleHelpCommand(websockets::WebsocketsClient client) {
+	printErrorMessage("Help command is currently not implemented");
 }
