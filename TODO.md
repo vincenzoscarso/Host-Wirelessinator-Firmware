@@ -5,7 +5,7 @@
   - [x] implement and use the "sendMagicPacket" function of "wifihandler"
 - [x] Feature: Relay support (GND: GND, VCC: 3V3, OUT: D15)
 - [x] Switch the toml configs with json configs
-- [ ] Add "GetJsonConfigs": a command that can send the json configs to the web interface
+- [ ] Add "GetHostsJson": a command that can send the json configs to the web interface
 - [ ] Improve the web interface and add it to the repository
 
 ## LATER:

@@ -8,8 +8,8 @@
 
 websockets::WebsocketsServer server;
 
-void __handleClientRequest(websockets::WebsocketsClient client);
-void __handleCommand(websockets::WebsocketsClient client, const std::string& message);
+void __handleClientRequest(websockets::WebsocketsClient& client);
+void __handleCommand(websockets::WebsocketsClient& client, const std::string& message);
 
 void serverSetup() {
 	printInfoMessage("Starting serverSetup procedure...");
@@ -41,7 +41,7 @@ void serverLoop() {
 	__handleClientRequest(client);
 }
 
-void __handleClientRequest(websockets::WebsocketsClient client) {
+void __handleClientRequest(websockets::WebsocketsClient& client) {
 	if (client.available()) {
 		websockets::WebsocketsMessage raw_message = client.readBlocking();
 
@@ -63,7 +63,7 @@ void __handleClientRequest(websockets::WebsocketsClient client) {
 	}
 }
 
-void __handleCommand(websockets::WebsocketsClient client, const std::string& message) {
+void __handleCommand(websockets::WebsocketsClient& client, const std::string& message) {
 	std::string command_name = "";
 	std::string host_name = "";
 
