@@ -17,3 +17,6 @@
 ## LATER:
 - [ ] Add a README
 - [ ] Add a documentation
+- [ ] Improve logging:
+  - [ ] Accept std::string as a parameter
+  - [ ] Add a "printDebugInfo" function
