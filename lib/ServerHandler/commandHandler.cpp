@@ -5,6 +5,7 @@
 #include <iostream>
 #include <logHandler.h>
 #include <map>
+#include <secrets.h>
 #include <string>
 #include <wifiHandler.h>
 
@@ -128,7 +129,8 @@ void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
   ------------------------------*/
 
 void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client) {
-	printErrorMessage("GetHostsJson command is currently not implemented");
+	printInfoMessage("Sending hosts JSON to the client...");
+	client.send(secrets::hosts_json.dump().c_str());
 }
 
 void __handleInformationsCommand(websockets::WebsocketsClient& client) {

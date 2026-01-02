@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host-WirelessInator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <h1>Host-WirelessInator_</h1>
+    </header>
+
+    <hr>
+
+    <main>
+        <fieldset id="arduino-container">
+            <legend>Arduino</legend>
+
+            Status:
+            <span id="arduino-status">Unknown</span>
+
+            <br>
+            
+            <input id="arduino-keep-connection-checkbox" type="checkbox">
+            <label for="arduino-keep-connection-checkbox">Stay connected</label>
+        </fieldset>
+
+        <fieldset id="hosts-container">
+            <legend>Available hosts</legend>
+
+            <div class="host">
+                <img src="res/Computer.png" alt="Computer">
+
+                <div class="details-container">
+                    <div>Name Unknown</div>
+                    <div>Type Unknown</div>
+                </div>
+
+                <div class="button-container">
+                    <button>Boot</button>
+                    <button>ForceShutdown</button>
+                </div>
+            </div>
+        </fieldset>
+    </main>
+
+    <button id="console-show-button" onclick="showConsole()">>_</button>
+
+    <div id="console-window">
+        <div id="console-title-bar">
+            <span id="console-logo">>_</span>
+            <span id="console-title">Console - Send commands to Arduino</span>
+            <span id="console-buttons-container">
+                <button class="console-button" id="console-clear-button" onclick="clearConsole()">[Clear]</button>
+                <button class="console-button" id="console-hide-button" onclick="hideConsole()">[Hide]</button>
+            </span>
+        </div>
+
+        <div id="console-content-wrapper">
+            <div id="console-content"></div>
+        </div>
+
+        <div id="console-command-bar">
+            <span id="console-command-path">Arduino></span>
+            &nbsp;
+            <input id="console-command" type="text">
+        </div>
+    </div>
+
+    <hr>
+
+    <footer>
+        Made by <a href="https://github.com/Vincy-2515">Vincy-2515</a>
+        —
+        <a href="https://github.com/Vincy-2515/Host-WirelessInator">Host-WirelessInator</a>
+    </footer>
+</body>
+
+</html>

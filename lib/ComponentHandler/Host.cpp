@@ -16,7 +16,7 @@ Host::Host(
 	this->__relay_pin = relay_pin;
 	this->__use_magic_packet = use_magic_packet;
 	try {
-		this->__mac_address = utils::convertStringVectorToByteVector(utils::split(mac_address, ':'));
+		this->__mac_address = utils::convertStringVectorToByteVector(utils::split(mac_address, ":"));
 	} catch (const std::exception& e) {
 		printErrorMessage(e.what());
 	}
