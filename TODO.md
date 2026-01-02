@@ -12,7 +12,8 @@
   - [ ] Create class for global values
   - [ ] Divide the js in multiple files (if possible)
   - [ ] Choose better colors
-- [ ] Fix: when client send various commands too quickly server does nothing, everything freezes 
+- [ ] Fix: when client send various commands too quickly server does nothing, everything freezes
+- [ ] Add a command to reboot arduino
 
 ## LATER:
 - [ ] Add a README

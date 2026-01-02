@@ -13,7 +13,10 @@ bool __connected_client = false;
 unsigned long __last_client_activity = 0UL;
 const unsigned long __CLIENT_TIMEOUT_MS = 60UL * 1000UL;
 
-void __handleClientRequestIfExists(websockets::WebsocketsClient& client);
+void __acceptNewConnections();
+void __rejectNewConnections();
+void __handleClientRequests(websockets::WebsocketsClient& client);
+void __handleConnectedClientConnection();
 void __updateConnectionMode(const std::string& message);
 void __handleCommand(websockets::WebsocketsClient& client, const std::string& message);
 
@@ -43,44 +46,39 @@ void serverSetup() {
 }
 
 void serverLoop() {
-	if (!__connected_client) {
-		if (__server.available()) {
-			__client = __server.accept();
-			__connected_client = true;
-			__keep_connection = false;
-			__last_client_activity = millis();
-			printInfoMessage("Client accepted");
-		}
-	} else if (__connected_client && __server.available()) {
-		auto new_client = __server.accept();
-		new_client.send("Socket is busy, connection rejected");
-		new_client.close();
-		printInfoMessage("Another client tried to connect but socket was busy, client rejected");
-	}
+	bool is_server_still_available = __server.available();
+
+	if (!__connected_client && is_server_still_available)
+		__acceptNewConnections();
+
+	else if (__connected_client && is_server_still_available)
+		__rejectNewConnections();
+		
+	else if (!is_server_still_available)
+		printErrorMessage("WebSockets' server is not live");
 
 	if (__connected_client) {
-		__handleClientRequestIfExists(__client);
-	}
-
-	if (__connected_client) {
-		unsigned long now = millis();
-		bool is_timed_out = (now - __last_client_activity > __CLIENT_TIMEOUT_MS);
-
-		if (!__keep_connection || is_timed_out) {
-			__client.poll();
-
-			printInfoMessage("DEBUG: %s, timeout:%d, act.:%d", is_timed_out ? "YES RICO KABOOOM" : "no :(", __CLIENT_TIMEOUT_MS, __last_client_activity);
-
-			printInfoMessage("Closing client connection: %s", is_timed_out ? "timeout" : "close requested");
-			__client.close();
-			__connected_client = false;
-		} else {
-			__client.poll();
-		}
+		__handleClientRequests(__client);
+		__handleConnectedClientConnection();
 	}
 }
 
-void __handleClientRequestIfExists(websockets::WebsocketsClient& client) {
+void __acceptNewConnections() {
+	__client = __server.accept();
+	__connected_client = true;
+	__keep_connection = false;
+	__last_client_activity = millis();
+	printInfoMessage("Client accepted");
+}
+
+void __rejectNewConnections() {
+	auto client_to_reject = __server.accept();
+	client_to_reject.send("Socket is busy, connection rejected");
+	client_to_reject.close();
+	printInfoMessage("Another client tried to connect but socket was busy, client rejected");
+}
+
+void __handleClientRequests(websockets::WebsocketsClient& client) {
 	if (client.available()) {
 		websockets::WebsocketsMessage raw_request = client.readBlocking();
 		__last_client_activity = millis();
@@ -101,6 +99,23 @@ void __handleClientRequestIfExists(websockets::WebsocketsClient& client) {
 		componentHandler::blinkLedBuiltIn(1);
 
 		__handleCommand(client, command);
+	}
+}
+
+void __handleConnectedClientConnection() {
+	unsigned long now = millis();
+	bool is_timed_out = (now - __last_client_activity > __CLIENT_TIMEOUT_MS);
+
+	if (!__keep_connection || is_timed_out) {
+		__client.poll();
+
+		printInfoMessage("DEBUG: %s, timeout:%d, act.:%d", is_timed_out ? "YES RICO KABOOOM" : "no :(", __CLIENT_TIMEOUT_MS, __last_client_activity);
+
+		printInfoMessage("Closing client connection: %s", is_timed_out ? "timeout" : "close requested");
+		__client.close();
+		__connected_client = false;
+	} else {
+		__client.poll();
 	}
 }
 
