@@ -1,4 +1,13 @@
-## IMPORTANT:
+## IMPORTANT
+
+### Web-UI:
+- [ ] Divide the css in multiple files
+- [ ] Divide the js in multiple files
+- [ ] Show arduino status
+- [ ] Create class for global values
+- [ ] Choose better colors
+
+### Arduino:
 - [x] Feature: Wake-On-LAN support:
   - [x] write a "split" function and add it to the "utils.cpp" file
   - [x] convert the "mac_address" string obtained from the toml configs to a byte array before storing it in the "Host" object
@@ -7,12 +16,6 @@
 - [x] Switch the toml configs with json configs
 - [x] Add "GetHostsJson": a command that can send the json configs to the web interface
 - [x] Improve the web interface and add it to the repository
-- [ ] Web-UI:
-  - [ ] Divide the css in multiple files
-  - [ ] Divide the js in multiple files
-  - [ ] Show arduino status
-  - [ ] Create class for global values
-  - [ ] Choose better colors
 - [ ] Fix: when client send various commands too quickly server does nothing, everything freezes
 - [ ] Add a command to reboot arduino
 
