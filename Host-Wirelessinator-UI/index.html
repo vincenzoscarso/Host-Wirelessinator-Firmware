@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host-WirelessInator</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<script type="module" src="/src/main.ts" defer></script>
+	<link rel="stylesheet" href="/src/style.css">
+	<title>Host-Wirelessinator</title>
 </head>
 
 <body>
@@ -33,7 +33,7 @@
             <legend>Available hosts</legend>
 
             <div class="host">
-                <img src="res/Computer.png" alt="Computer">
+                <img src="/Computer.png" alt="Computer">
 
                 <div class="details-container">
                     <div>Name Unknown</div>
@@ -48,15 +48,15 @@
         </fieldset>
     </main>
 
-    <button id="console-show-button" onclick="showConsole()">>_</button>
+    <button id="console-show-button">>_</button>
 
     <div id="console-window">
         <div id="console-title-bar">
             <span id="console-logo">>_</span>
             <span id="console-title">Console - Send commands to Arduino</span>
             <span id="console-buttons-container">
-                <button class="console-button" id="console-clear-button" onclick="clearConsole()">[Clear]</button>
-                <button class="console-button" id="console-hide-button" onclick="hideConsole()">[Hide]</button>
+                <button class="console-button" id="console-clear-button">[Clear]</button>
+                <button class="console-button" id="console-hide-button">[Hide]</button>
             </span>
         </div>
 
