@@ -1,0 +1,4 @@
+#arduino-container {
+    padding: 10px;
+    border: var(--container-border);
+}

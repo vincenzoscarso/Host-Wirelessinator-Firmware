@@ -1,0 +1,18 @@
+/* mobile and general */
+:root {
+    --container-border: 1px solid rgb(118, 118, 118);
+
+    --max-width: 95%;
+    --background-color: #122C34;
+    --font-color: #F6FFF8;
+    --font-size: 16px;
+}
+
+/* desktop */
+@media (min-width: 769px) {
+
+    :root {
+        --max-width: 95%;
+        --font-size: ;
+    }
+}
