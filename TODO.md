@@ -1,8 +1,8 @@
 ## IMPORTANT
 
 ### Web-UI:
+- [x] Divide the ts in multiple files
 - [ ] Divide the css in multiple files
-- [ ] Divide the js in multiple files
 - [ ] Show arduino status
 - [ ] Create class for global values
 - [ ] Choose better colors
