@@ -1,7 +1,7 @@
 export default {
-    base: './', // Ensures paths work on GitHub Pages
+    base: './',
     build: {
-        outDir: '../docs', // Sends the build up one level into the root docs folder
-        emptyOutDir: true, // Cleans the folder before building
+        outDir: './dist',
+        emptyOutDir: true,
     }
 }
