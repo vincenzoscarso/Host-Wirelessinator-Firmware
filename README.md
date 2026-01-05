@@ -1,4 +1,4 @@
-### Message format
+## Message format
 
 ```
 Header:     |Connection:[keep_connection, close_connection]\n
