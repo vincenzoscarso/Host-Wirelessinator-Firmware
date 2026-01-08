@@ -4,7 +4,6 @@
 - [x] Divide the css in multiple files
 - [x] Divide the js in multiple files
 - [ ] Show arduino status
-- [ ] Create class for global values
 - [ ] Choose better colors
 
 ### Arduino:
