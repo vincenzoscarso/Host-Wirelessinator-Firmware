@@ -4,7 +4,7 @@
 - [x] Divide the css in multiple files
 - [x] Divide the js in multiple files
 - [x] Show arduino status
-- [ ] Choose better colors
+- [ ] Fix: host width for mobile
 
 ### Arduino:
 - [x] Feature: Wake-On-LAN support:
@@ -19,6 +19,7 @@
 - [ ] Add a command to reboot arduino
 
 ## LATER:
+- [ ] Choose better colors
 - [ ] Add a README
 - [ ] Add a documentation
 - [ ] Improve logging:
