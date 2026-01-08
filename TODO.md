@@ -3,7 +3,7 @@
 ### Web-UI:
 - [x] Divide the css in multiple files
 - [x] Divide the js in multiple files
-- [ ] Show arduino status
+- [x] Show arduino status
 - [ ] Choose better colors
 
 ### Arduino:

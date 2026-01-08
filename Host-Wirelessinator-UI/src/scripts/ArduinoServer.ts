@@ -1,4 +1,5 @@
 import * as Log from './log'
+import * as Ino from './ArduinoUi'
 
 class ArduinoServerClass {
     private __socket: WebSocket | null
@@ -23,10 +24,17 @@ class ArduinoServerClass {
 
         this.__socket = new WebSocket(`ws://${this.SERVER_ADDRESS}`)
 
-        this.__socket.onopen = () => { Log.logInfo('Connected to the server'); callback() }
+        this.__socket.onopen = () => {
+            Ino.arduino_ui_node.status.innerText = "Connected"
+            Log.logInfo('Connected to the server')
+            callback()
+        }
         this.__socket.onmessage = (event) => { Log.logArduino(event.data) }
         this.__socket.onerror = (event) => { Log.logError(`WebSocket error: ${event.target}`) }
-        this.__socket.onclose = () => { Log.logInfo('Disconnected from the server') }
+        this.__socket.onclose = () => {
+            Ino.arduino_ui_node.status.innerText = "Disconnected"
+            Log.logInfo('Disconnected from the server')
+        }
 
         Log.logInfo("Waiting for server to come online...")
     }

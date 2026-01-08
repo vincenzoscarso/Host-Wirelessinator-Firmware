@@ -14,7 +14,7 @@ ConUi.console_ui_node.input_command.addEventListener("keydown", (event) => {
 })
 
 function connectAndOrSendCommand(command: string): void {
-	ArduinoServer.setConnectionMode(InoUi.arduino_ui_node.arduino_keep_connection_checkbox.checked)
+	ArduinoServer.setConnectionMode(InoUi.arduino_ui_node.keep_connection_checkbox.checked)
 
 	if (!command) {
 		Log.logError("No command provided, skipping")
