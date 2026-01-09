@@ -1,13 +1,23 @@
 /* mobile and general */
 :root {
-    --host-image-width: 64px;
+    --image-width: 64px;
+
+    --details-container-width: 170px;
+    
+    --inner-flex-gap: 5px;
+    --outer-flex-gap: 5px;
 }
 
 /* desktop */
 @media (min-width: 769px) {
-
+    
     :root {
-        --host-image-width: 96px;
+        --image-width: 96px;
+        
+        --details-container-width: 190px;
+
+        --inner-flex-gap: 15px;
+        --outer-flex-gap: 10px;
     }
 }
 
@@ -16,7 +26,7 @@
     width: 100%;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: var(--outer-flex-gap);
     border: var(--container-border);
     padding: 10px;
     justify-content: space-evenly;
@@ -31,16 +41,16 @@
     display: flex;
     flex-direction: row;
     border: var(--container-border);
-    gap: 15px;
+    gap: var(--inner-flex-gap);
 }
 
 .host img {
-    width: var(--host-image-width);
+    width: var(--image-width);
 }
 
 .host .details-container {
     box-sizing: border-box;
-    width: 190px;
+    width: var(--details-container-width);
     display: flex;
     flex-direction: column;
     flex: 1;

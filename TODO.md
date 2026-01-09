@@ -4,7 +4,7 @@
 - [x] Divide the css in multiple files
 - [x] Divide the js in multiple files
 - [x] Show arduino status
-- [ ] Fix: host width for mobile
+- [x] Fix: host width for mobile
 
 ### Arduino:
 - [x] Feature: Wake-On-LAN support:
