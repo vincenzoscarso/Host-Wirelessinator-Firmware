@@ -5,6 +5,7 @@
 - [x] Divide the js in multiple files
 - [x] Show arduino status
 - [x] Fix: host width for mobile
+- [ ] Improve typescript code modularity
 
 ### Arduino:
 - [x] Feature: Wake-On-LAN support:
