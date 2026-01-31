@@ -12,45 +12,80 @@ class ArduinoServerClass {
     }
 
     getConnectionMode() {
-        return this.__keep_connection;
+        return this.__keep_connection
     }
 
     setConnectionMode(value: boolean) {
         this.__keep_connection = value
     }
 
-    connect(callback: () => void): void {
+    connect(): Promise<void> {
         if (this.isOpen()) this.__socket!.close()
 
         this.__socket = new WebSocket(`ws://${this.SERVER_ADDRESS}`)
 
-        this.__socket.onopen = () => {
-            Ino.arduino_ui_node.status.innerText = "Connected"
-            Log.logInfo('Connected to the server')
-            callback()
-        }
-        this.__socket.onmessage = (event) => { Log.logArduino(event.data) }
-        this.__socket.onerror = (event) => { Log.logError(`WebSocket error: ${event.target}`) }
         this.__socket.onclose = () => {
             Ino.arduino_ui_node.status.innerText = "Disconnected"
             Log.logInfo('Disconnected from the server')
         }
 
         Log.logInfo("Waiting for server to come online...")
+
+        return new Promise<void>((resolve, reject) => {
+            if (!this.__socket) {
+                return reject()
+            }
+
+            this.__socket.onopen = () => {
+                Ino.arduino_ui_node.status.innerText = "Connected"
+                Log.logInfo('Connected to the server')
+                return resolve()
+            }
+
+            this.__socket.onerror = (event) => {
+                Log.logError(`WebSocket error: ${event}`)
+                return reject()
+            }
+        })
+
     }
 
-    sendCommand(command: string): void {
-        if (!this.isOpen()) {
-            Log.logError("Couldn't send request: socket not open")
-            return
+    sendCommandAndGetOutput(command: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (!this.isOpen() || !this.__socket) {
+                Log.logError("Couldn't send request: socket not initialized")
+                return reject()
+            }
+            
+            let request: string
+            let header = `Connection: ${this.__keep_connection ? "keep_connection" : "close_connection"}`
+            request = header + "\n" + "-- HEADER END --" + "\n" + command
+
+            this.__socket!.send(request)
+            Log.logInfo(`Sent request:\n${request}`)
+
+            this.__socket.onmessage = (event) => {
+                return resolve(event.data)
+            }
+
+            this.__socket.onerror = () => {
+                Log.logError(`WebSocket error`)
+                return reject()
+            }
+        })
+    }
+
+    async getHostsJson(): Promise<any> {
+        try {
+            await this.connect();
+
+            const output = await this.sendCommandAndGetOutput("GetHostsJson");
+
+            return output;
+        } catch (error) {
+            console.error("Error obtaining hosts JSON: ", error);
+            throw error;
         }
-
-        let request: string
-        let header = `Connection: ${this.__keep_connection ? "keep_connection" : "close_connection"}`
-        request = header + "\n" + "-- HEADER END --" + "\n" + command
-
-        this.__socket!.send(request)
-        Log.logInfo(`Sent request:\n${request}`)
     }
 
     isOpen(): boolean {

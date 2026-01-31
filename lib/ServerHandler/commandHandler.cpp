@@ -86,6 +86,12 @@ bool __checkForCommandAndExcecuteInDeviceCommandsMap(websockets::WebsocketsClien
     Handlers
   ============*/
 
+void commandHandler::handleNoCommand(websockets::WebsocketsClient& client, const std::string& message) {
+	std::string response = "Unknown command: " + message;
+	printErrorMessage(response.c_str());
+	client.send(response.c_str());
+}
+
 /*----------------------------
     Hosts' commands handlers
   ----------------------------*/

@@ -1,4 +1,5 @@
 ## IMPORTANT
+For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsockets/wiki 
 
 ### Web-UI:
 - [x] Divide the css in multiple files
@@ -16,7 +17,8 @@
 - [x] Switch the toml configs with json configs
 - [x] Add "GetHostsJson": a command that can send the json configs to the web interface
 - [x] Improve the web interface and add it to the repository
-- [ ] Fix: when client send various commands too quickly server does nothing, everything freezes
+- [x] Fix: server loop freezing
+- [ ] Fix: __rejectNewConnections() should not be blocking
 - [ ] Add a command to reboot arduino
 
 ## LATER:
