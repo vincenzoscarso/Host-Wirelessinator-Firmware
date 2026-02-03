@@ -20,6 +20,7 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
 - [x] Fix: server loop freezing
 - [ ] Fix: __rejectNewConnections() should not be blocking
 - [ ] Add a command to reboot arduino
+- [ ] implement an handler for client.onEvent()
 
 ## LATER:
 - [ ] Choose better colors
