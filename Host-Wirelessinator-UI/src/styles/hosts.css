@@ -2,7 +2,7 @@
 :root {
     --image-width: 64px;
 
-    --details-container-width: 170px;
+    --details-container-width: 150px;
     
     --inner-flex-gap: 5px;
     --outer-flex-gap: 5px;
