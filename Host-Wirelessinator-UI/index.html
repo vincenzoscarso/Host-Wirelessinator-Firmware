@@ -2,18 +2,18 @@
 <html lang="en">
 
 <head>
-	<title>Host-Wirelessinator</title>
+    <title>Host-Wirelessinator</title>
 
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<link rel="stylesheet" href="/src/styles/globals.css">
-	<link rel="stylesheet" href="/src/styles/main.css">
-	<link rel="stylesheet" href="/src/styles/arduino.css">
-	<link rel="stylesheet" href="/src/styles/hosts.css">
-	<link rel="stylesheet" href="/src/styles/console.css">
+    <link rel="stylesheet" href="/src/styles/globals.css">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="/src/styles/arduino.css">
+    <link rel="stylesheet" href="/src/styles/hosts.css">
+    <link rel="stylesheet" href="/src/styles/console.css">
 
-	<script type="module" src="/src/scripts/main.ts" defer></script>
+    <script type="module" src="/src/scripts/main.ts" defer></script>
 </head>
 
 <body>
@@ -31,27 +31,13 @@
             <span id="arduino-status">Disconnected</span>
 
             <br>
-            
+
             <input id="arduino-keep-connection-checkbox" type="checkbox">
             <label for="arduino-keep-connection-checkbox">Stay connected</label>
         </fieldset>
 
         <fieldset id="hosts-container">
             <legend>Available hosts</legend>
-
-            <div class="host">
-                <img src="/Computer.png" alt="Computer">
-
-                <div class="details-container">
-                    <div>Name Unknown</div>
-                    <div>Type Unknown</div>
-                </div>
-
-                <div class="button-container">
-                    <button>Boot</button>
-                    <button>ForceShutdown</button>
-                </div>
-            </div>
         </fieldset>
     </main>
 

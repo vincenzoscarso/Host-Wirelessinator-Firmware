@@ -4,7 +4,7 @@ import * as Ino from './ArduinoUi'
 class ArduinoServerClass {
     private __socket: WebSocket | null
     private __keep_connection: boolean
-    public readonly SERVER_ADDRESS = "192.168.1.10:55555"
+    public readonly SERVER_ADDRESS = "192.168.1.250:55555"
 
     constructor() {
         this.__socket = null

@@ -1,4 +1,4 @@
-import * as Con from './ConsoleUi'
+import { ConsoleUI } from "./ConsoleUi"
 
 export function logInfo(message: string) {
 	let header = "[SYSTEM][I]: "
@@ -21,6 +21,6 @@ export function logArduino(message: string) {
 }
 
 function __log(header: string, message: string) {
-	Con.appendToConsole(header + message + '\n')
+	ConsoleUI.appendToConsole(header + message + '\n')
 	console.log(header + message)
 }

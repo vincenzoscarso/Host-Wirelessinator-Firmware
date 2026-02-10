@@ -12,8 +12,9 @@ bool __keep_connection = false;
 bool __is_client_connected = false;
 bool __is_request_begin_handled_now = false;
 unsigned long __last_client_activity = 0UL;
-const unsigned long __CLIENT_TIMEOUT_MS = 10 * 1000UL; // 1000UL: 1000ms => 1s
+const unsigned long __CLIENT_TIMEOUT_MS = 30UL * 1000UL; // 1000UL = 1000ms = 1s
 
+void __handleLoopInformations();
 void __acceptNewConnections();
 void __rejectNewConnections();
 void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request);
@@ -49,6 +50,8 @@ void serverSetup() {
 void serverLoop() {
 	bool is_server_still_available = __server.available();
 
+	__handleLoopInformations();
+
 	if (!__is_client_connected && is_server_still_available) {
 		__acceptNewConnections();
 	}
@@ -64,6 +67,21 @@ void serverLoop() {
 	if (__is_client_connected) {
 		__handleConnectedClientConnection();
 	}
+}
+
+void __handleLoopInformations() {
+	static int cycles = 0;
+	static unsigned long last_info_print = 0;
+	const unsigned long millis_between_info_prints = 1000;
+	const int time_passed_since_last_print = millis() - last_info_print;
+
+	if (time_passed_since_last_print >= millis_between_info_prints) {
+		printInfoMessage("Performed %d cycle(s) in the last %ld milliseconds", cycles, time_passed_since_last_print);
+		last_info_print = millis();
+		cycles = 0;
+	}
+
+	cycles++;
 }
 
 void __acceptNewConnections() {
@@ -89,22 +107,22 @@ void __rejectNewConnections() {
 
 void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request) {
 	__is_request_begin_handled_now = true;
-	
+
 	if (!raw_request.isText()) {
 		printErrorMessage("The message received from the client is not text, skipping");
 		return;
 	}
-	
+
 	std::string str_request = utils::toStdString(raw_request.c_str());
 	printInfoMessage("Got request:\n%s", str_request.c_str());
-	
+
 	__updateConnectionMode(str_request);
-	
+
 	std::string command = utils::trim(utils::split(str_request, "-- HEADER END --\n")[1]);
-	
+
 	printInfoMessage("New request from a client, got command: %s", command.c_str());
 	componentHandler::blinkLedBuiltIn(1);
-	
+
 	__handleCommand(client, command);
 
 	__last_client_activity = millis();
@@ -115,8 +133,8 @@ void __handleConnectedClientConnection() {
 	unsigned long now = millis();
 	bool is_timed_out = (now - __last_client_activity > __CLIENT_TIMEOUT_MS);
 
-	if ((!__keep_connection || is_timed_out) 
-		&& !__is_request_begin_handled_now) {
+	if ((!__keep_connection || is_timed_out)
+	    && !__is_request_begin_handled_now) {
 		__client.poll();
 
 		printInfoMessage("Closing client connection: %s", is_timed_out ? "timeout" : "close requested");
