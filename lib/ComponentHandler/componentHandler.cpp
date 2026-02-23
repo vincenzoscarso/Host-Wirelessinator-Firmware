@@ -59,6 +59,7 @@ void __hostsRelayPinsSetup() {
 	for (Host h : Hosts::hosts) {
 		int relay_pin = h.getRelayPin();
 		if (h.isUseRelayPinEnabled() && relay_pin > -1) {
+			digitalWrite(relay_pin, HIGH);
 			pinMode(relay_pin, OUTPUT);
 		}
 	}
