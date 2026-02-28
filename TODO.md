@@ -21,8 +21,8 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
 - [x] Fix: server loop freezing
 - [ ] Make code non-blocking:
   - [ ] implement an handler for client.onEvent() function 
-  - [ ] Fix: __acceptNewConnections() should not be blocking
-  - [ ] Fix: __rejectNewConnections() should not be blocking
+  - [x] Fix: __acceptNewConnections() should not be blocking
+  - [x] Fix: __rejectNewConnections() should not be blocking
 - [ ] Implement "Modem-sleep" to make the Arduino use less energy when in idling
 - [ ] Add a command to reboot arduino
 
@@ -32,4 +32,4 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
 - [ ] Add a documentation
 - [ ] Improve logging:
   - [ ] Accept std::string as a parameter
-  - [ ] Add a "printDebugInfo" function
+  - [x] Add a "printDebugInfo" function

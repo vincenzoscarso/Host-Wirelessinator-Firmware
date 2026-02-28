@@ -14,7 +14,14 @@ bool __is_request_begin_handled_now = false;
 unsigned long __last_client_activity = 0UL;
 const unsigned long __CLIENT_TIMEOUT_MS = 30UL * 1000UL; // 1000UL = 1000ms = 1s
 
-void __handleLoopInformations();
+TaskHandle_t __AcceptNewConnections = NULL;
+TaskHandle_t __RejectNewConnections = NULL;
+
+bool __isServerAvailable();
+bool __isClientAvailable();
+void __printInfos();
+void __taskAcceptNewConnections(void* parameters);
+void __taskRejectNewConnections(void* parameters);
 void __acceptNewConnections();
 void __rejectNewConnections();
 void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request);
@@ -44,23 +51,14 @@ void serverSetup() {
 	printInfoMessage("The server is online");
 	componentHandler::setLedBuiltInStatus(HIGH);
 
+	xTaskCreatePinnedToCore(__taskAcceptNewConnections, "AcceptNewConnectionsTask", 4096, NULL, 1, &__AcceptNewConnections, 0);
+	xTaskCreatePinnedToCore(__taskRejectNewConnections, "RejectNewConnectionsTask", 4096, NULL, 1, &__RejectNewConnections, 0);
+
 	printInfoMessage("serverSetup procedure ended");
 }
 
 void serverLoop() {
-	bool is_server_still_available = __server.available();
-
-	__handleLoopInformations();
-
-	if (!__is_client_connected && is_server_still_available) {
-		__acceptNewConnections();
-	}
-
-	else if (__is_client_connected && is_server_still_available) {
-		//__rejectNewConnections(); //TODO: fix this function
-	}
-
-	else if (!is_server_still_available) {
+	if (!__isServerAvailable()) {
 		printErrorMessage("WebSockets' server is not live");
 	}
 
@@ -69,19 +67,34 @@ void serverLoop() {
 	}
 }
 
-void __handleLoopInformations() {
-	static int cycles = 0;
-	static unsigned long last_info_print = 0;
-	const unsigned long millis_between_info_prints = 1000;
-	const int time_passed_since_last_print = millis() - last_info_print;
+bool __isServerAvailable() {
+	return __server.available();
+}
 
-	if (time_passed_since_last_print >= millis_between_info_prints) {
-		printInfoMessage("Performed %d cycle(s) in the last %ld milliseconds", cycles, time_passed_since_last_print);
-		last_info_print = millis();
-		cycles = 0;
+bool __isClientAvailable() {
+	return __server.poll();
+}
+
+void __taskAcceptNewConnections(void* parameters) {
+	while (true) {
+		if (!__is_client_connected
+		    && __isServerAvailable()
+		    && __isClientAvailable())
+			__acceptNewConnections();
+
+		vTaskDelay(1);
 	}
+}
 
-	cycles++;
+void __taskRejectNewConnections(void* parameters) {
+	while (true) {
+		if (__is_client_connected
+		    && __isServerAvailable()
+		    && __isClientAvailable())
+			__rejectNewConnections();
+
+		vTaskDelay(1);
+	}
 }
 
 void __acceptNewConnections() {
