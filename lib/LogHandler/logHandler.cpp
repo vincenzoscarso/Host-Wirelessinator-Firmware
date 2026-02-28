@@ -3,6 +3,7 @@
 #ifdef LOG
 
 static void __printHeader(const char* file, const char* function, int line, int log_level);
+void __printDebugHeader(const char* function);
 static void __printInfoHeader(const char* function);
 static void __printWarningHeader(const char* function);
 static void __printErrorHeader(const char* file, const char* function, int line);
@@ -52,8 +53,29 @@ void __printHeader(const char* file, const char* function, int line, int log_lev
 	case 'e':
 		__printErrorHeader(file, function, line);
 		break;
+	case 'd':
+		__printDebugHeader(function);
 	}
 }
+
+#ifdef LOG_DEBUG
+void __printDebugHeader(const char* function) {
+	int size_of_function_name = strlen(function);
+
+	if (size_of_function_name > FUNCTION_NAME_SIZE) {
+		char function_name_buffer[FUNCTION_NAME_SIZE];
+		__shortenFuntionName(function_name_buffer, function);
+		Serial.printf("[DEBUG  ][%s...]: ", function_name_buffer);
+	} else {
+		Serial.printf("[DEBUG  ][%+*s]: ", FUNCTION_NAME_SIZE, function);
+	}
+}
+#else /* LOG_DEBUG */
+void __printDebugHeader(const char* function) {
+	do {
+	} while (0);
+}
+#endif /* LOG_DEBUG */
 
 #ifdef LOG_INFOS
 void __printInfoHeader(const char* function) {

@@ -7,11 +7,15 @@
  * WHEN LOGGING IS ENABLED THE MEMORY USED WILL INCREMENT
  * 
  * LOG: when defined enables logging
+ * LOG_DEBUG: when defined will print log messages of level "DEBUG"
  * LOG_INFOS: when defined will print log messages of level "INFO"
  * LOG_WARNINGS: when defined will print log messages of level "WARNING"
  * LOG_ERRORS: when defined will print log messages of level "ERROR"
 */
+
+// the defines are in the platformio.ini
 // #define LOG
+// #define LOG_DEBUG
 // #define LOG_INFOS
 // #define LOG_WARNINGS
 // #define LOG_ERRORS
@@ -30,6 +34,12 @@
 	* __func__: name of the function that called the function where it's specified
 	* __LINE__: line of the file where the function was called
 	*/
+
+	#ifdef LOG_DEBUG
+		#define printDebugMessage(format, ...) __printLogMessage(__FILE__, __func__, __LINE__, 'd', format, ##__VA_ARGS__);
+	#else /* LOG_DEBUG */
+		#define printDebugMessage(format, ...) do {} while (0);
+	#endif /* LOG_DEBUG */
 
 	#ifdef LOG_INFOS
 		#define printInfoMessage(format, ...) __printLogMessage(__FILE__, __func__, __LINE__, 'i', format, ##__VA_ARGS__);
@@ -51,6 +61,7 @@
 
 	void __printLogMessage(const char* file, const char* function, int line, const char log_level, const char* format, ...);
 #else
+	#define printDebugMessage(format, ...) do {} while (0);
 	#define printInfoMessage(format, ...) do {} while (0);
 	#define printWarningMessage(format, ...) do {} while (0);
 	#define printErrorMessage(format, ...) do {} while (0);
