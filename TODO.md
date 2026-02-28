@@ -19,10 +19,11 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
 - [x] Add "GetHostsJson": a command that can send the json configs to the web interface
 - [x] Improve the web interface and add it to the repository
 - [x] Fix: server loop freezing
-- [ ] Make code non-blocking:
-  - [ ] implement an handler for client.onEvent() function 
+- [x] Make code non-blocking:
   - [x] Fix: __acceptNewConnections() should not be blocking
   - [x] Fix: __rejectNewConnections() should not be blocking
+- [ ] Make code thread-safe
+- [ ] implement an handler for client.onEvent() function 
 - [ ] Implement "Modem-sleep" to make the Arduino use less energy when in idling
 - [ ] Add a command to reboot arduino
 
