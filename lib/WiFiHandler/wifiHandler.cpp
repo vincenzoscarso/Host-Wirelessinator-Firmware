@@ -19,7 +19,7 @@ void WifiHandler::wifiSetup() {
 
 		if (__wifi_status != WL_CONNECTED) {
 			printErrorMessage("Couldn't get a WiFi connection, wifi_status: %d", __wifi_status);
-			componentHandler::blinkLedBuiltIn(1);
+			componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_BETWEEN_FAILED_CONNECTION_TRIALS);
 			delay(DELAY_BETWEEN_WIFI_CONNECTION_TRIALS);
 		}
 	} while (__wifi_status != WL_CONNECTED);

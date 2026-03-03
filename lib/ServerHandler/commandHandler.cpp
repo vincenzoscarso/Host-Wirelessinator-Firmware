@@ -102,9 +102,9 @@ void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
 	if (host.isUseMagicPacketEnabled()) {
 		WifiHandler::sendMagicPacket(host.getMacAddress());
 	} else if (host.isUseRelayPinEnabled()) {
-		componentHandler::setHostRelayPinStatus(host, HIGH);
-		delay(1000);
 		componentHandler::setHostRelayPinStatus(host, LOW);
+		delay(1000);
+		componentHandler::setHostRelayPinStatus(host, HIGH);
 	} else {
 		printErrorMessage("Couldn't find a method to boot this host, check configuration");
 	}
@@ -115,7 +115,9 @@ void __handleRebootCommand(websockets::WebsocketsClient& client, Host host) {
 }
 
 void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host host) {
-	printInfoMessage("Force shutting down system on host: %s", host.getName().c_str());
+	printErrorMessage("Force Shutdown command is currently not implemented");
+
+	/* printInfoMessage("Force shutting down system on host: %s", host.getName().c_str());
 
 	if (host.isUseRelayPinEnabled()) {
 		componentHandler::setHostRelayPinStatus(host, HIGH);
@@ -123,7 +125,7 @@ void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host hos
 		componentHandler::setHostRelayPinStatus(host, LOW);
 	} else {
 		printErrorMessage("Couldn't force-shutdown this host: relay needed, check configuration");
-	}
+	} */
 }
 
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {

@@ -18,9 +18,9 @@ void componentHandler::setLedBuiltInStatus(uint8_t value) {
 void componentHandler::blinkLedBuiltIn(int ripetitions) {
 	int i = 0;
 	while (i < ripetitions) {
-		digitalWrite(LED_BUILTIN, LOW);
-		delay(125);
 		digitalWrite(LED_BUILTIN, HIGH);
+		delay(125);
+		digitalWrite(LED_BUILTIN, LOW);
 		delay(125);
 		i++;
 	}
@@ -60,6 +60,7 @@ void __hostsRelayPinsSetup() {
 		int relay_pin = h.getRelayPin();
 		if (h.isUseRelayPinEnabled() && relay_pin > -1) {
 			pinMode(relay_pin, OUTPUT);
+			digitalWrite(relay_pin, HIGH);
 		}
 	}
 }
