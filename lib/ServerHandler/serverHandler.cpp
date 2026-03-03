@@ -1,33 +1,20 @@
 #include <ArduinoWebsockets.h>
 #include <Hosts.h>
+#include <ServerGlobals.h>
 #include <WiFi.h>
 #include <commandHandler.h>
 #include <componentHandler.h>
 #include <serverHandler.h>
 #include <utils.h>
 
-websockets::WebsocketsServer __server;
-websockets::WebsocketsClient __client;
-bool __keep_connection = false;
-bool __is_client_connected = false;
-bool __is_request_begin_handled_now = false;
-unsigned long __last_client_activity = 0UL;
-const unsigned long __CLIENT_TIMEOUT_MS = 30UL * 1000UL; // 1000UL = 1000ms = 1s
+static ServerGlobals __globals;
 
-TaskHandle_t __AcceptNewConnections = NULL;
-TaskHandle_t __RejectNewConnections = NULL;
-
-bool __isServerAvailable();
-bool __isClientAvailable();
-void __printInfos();
-void __taskAcceptNewConnections(void* parameters);
-void __taskRejectNewConnections(void* parameters);
-void __acceptNewConnections();
-void __rejectNewConnections();
-void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request);
-void __handleConnectedClientConnection();
-void __updateConnectionMode(const std::string& message);
-void __handleCommand(websockets::WebsocketsClient& client, const std::string& message);
+static void __acceptNewConnections();
+static void __rejectNewConnections();
+static void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request);
+static void __handleConnectedClientConnection();
+static void __updateConnectionMode(const std::string& message);
+static void __handleCommand(websockets::WebsocketsClient& client, const std::string& message);
 
 void serverSetup() {
 	printInfoMessage("Starting serverSetup procedure...");
@@ -39,87 +26,67 @@ void serverSetup() {
 
 	printInfoMessage("Starting server...");
 
-	__server.listen(SERVER_PORT);
-
-	if (!__server.available()) {
-
+	if (!__globals.serverListen(SERVER_PORT)) {
 		printInfoMessage("Failed to start the server");
 		while (1)
-			componentHandler::blinkLedBuiltIn(1);
+			componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_ON_SERVER_STARTUP_FAILURE);
 	}
-
 	printInfoMessage("The server is online");
-	componentHandler::setLedBuiltInStatus(HIGH);
-
-	xTaskCreatePinnedToCore(__taskAcceptNewConnections, "AcceptNewConnectionsTask", 4096, NULL, 1, &__AcceptNewConnections, 0);
-	xTaskCreatePinnedToCore(__taskRejectNewConnections, "RejectNewConnectionsTask", 4096, NULL, 1, &__RejectNewConnections, 0);
 
 	printInfoMessage("serverSetup procedure ended");
 }
 
 void serverLoop() {
-	if (!__isServerAvailable()) {
+	if (!__globals.isServerAvailable()) {
 		printErrorMessage("WebSockets' server is not live");
+		while (1)
+			componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_ON_SERVER_STARTUP_FAILURE);
 	}
 
-	if (__is_client_connected) {
+	if (!__globals.isClientConnected()) {
+		__acceptNewConnections();
+	} else {
+		__rejectNewConnections();
+	}
+
+	if (__globals.isClientConnected()) {
 		__handleConnectedClientConnection();
 	}
 }
 
-bool __isServerAvailable() {
-	return __server.available();
-}
+static void __acceptNewConnections() {
+	websockets::WebsocketsClient new_client;
 
-bool __isClientAvailable() {
-	return __server.poll();
-}
-
-void __taskAcceptNewConnections(void* parameters) {
-	while (true) {
-		if (!__is_client_connected
-		    && __isServerAvailable()
-		    && __isClientAvailable())
-			__acceptNewConnections();
-
-		vTaskDelay(1);
+	if (!__globals.getServer().poll()) {
+		return;
 	}
-}
 
-void __taskRejectNewConnections(void* parameters) {
-	while (true) {
-		if (__is_client_connected
-		    && __isServerAvailable()
-		    && __isClientAvailable())
-			__rejectNewConnections();
+	new_client = __globals.getServer().accept();
 
-		vTaskDelay(1);
-	}
-}
+	__globals.setClient(new_client);
+	__globals.setClientConnected(true);
+	__globals.setKeepConnection(false);
+	__globals.updateLastClientActivity();
 
-void __acceptNewConnections() {
-	__client = __server.accept();
-
-	__is_client_connected = true;
-	__keep_connection = true;
-
-	//__client.onEvent(); //TODO: TO SETUP IN FUTURE
-	__client.onMessage(__handleClientRequests);
-
-	__last_client_activity = millis();
+	__globals.getClient().onMessage(__handleClientRequests);
 
 	printInfoMessage("Client accepted");
 }
 
-void __rejectNewConnections() {
-	auto client_to_reject = __server.accept();
+static void __rejectNewConnections() {
+	if (!__globals.getServer().poll()) {
+		return;
+	}
+
+	auto client_to_reject = __globals.getServer().accept();
+
 	client_to_reject.send("Socket is busy, connection rejected");
 	client_to_reject.close();
 	printInfoMessage("Another client tried to connect but socket was busy, client rejected");
 }
 
-void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request) {
-	__is_request_begin_handled_now = true;
+static void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request) {
+	__globals.setIsRequestBeingHandled(true);
 
 	if (!raw_request.isText()) {
 		printErrorMessage("The message received from the client is not text, skipping");
@@ -134,47 +101,57 @@ void __handleClientRequests(websockets::WebsocketsClient& client, websockets::We
 	std::string command = utils::trim(utils::split(str_request, "-- HEADER END --\n")[1]);
 
 	printInfoMessage("New request from a client, got command: %s", command.c_str());
-	componentHandler::blinkLedBuiltIn(1);
+	componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_ON_COMMAND);
 
 	__handleCommand(client, command);
 
-	__last_client_activity = millis();
-	__is_request_begin_handled_now = false;
+	__globals.updateLastClientActivity();
+	__globals.setIsRequestBeingHandled(false);
 }
 
-void __handleConnectedClientConnection() {
+static void __handleConnectedClientConnection() {
+	bool keep_connection = __globals.isKeepConnectionEnabled();
+	bool is_timed_out = __globals.isClientTimedOut();
+	bool is_request_being_handled = __globals.isRequestBeingHandled();
+	unsigned long last_activity = __globals.getLastClientActivity();
 	unsigned long now = millis();
-	bool is_timed_out = (now - __last_client_activity > __CLIENT_TIMEOUT_MS);
 
-	if ((!__keep_connection || is_timed_out)
-	    && !__is_request_begin_handled_now) {
-		__client.poll();
+	__globals.getClient().poll();
 
-		printInfoMessage("Closing client connection: %s", is_timed_out ? "timeout" : "close requested");
-		__client.close();
-		__is_client_connected = false;
-	} else {
-		__client.poll();
-	}
+	if ((now - last_activity) < __globals.MS_TO_SEND_A_COMMAND_AFTER_CONNECTION)
+		return;
+
+	if (is_request_being_handled)
+		return;
+
+	if (!is_timed_out && keep_connection)
+		return;
+
+	printInfoMessage("Closing client connection: %s", is_timed_out ? "timeout" : "close requested / no request received");
+	__globals.getClient().close();
+	__globals.setClientConnected(false);
 }
 
-void __updateConnectionMode(const std::string& message) {
+static void __updateConnectionMode(const std::string& message) {
 	int line_number = utils::getLineNumberOfString(message, "Connection");
 	auto connection_property = utils::getLine(message, line_number);
 	auto splitted_connection_property = utils::split(connection_property, ":");
 	std::string connection_property_value = utils::trim(splitted_connection_property[1]);
 
+	bool desired_connection = true;
 	if (connection_property_value == "keep_connection") {
-		__keep_connection = true;
+		desired_connection = true;
 	} else if (connection_property_value == "close_connection") {
-		__keep_connection = false;
+		desired_connection = false;
 	} else {
 		printErrorMessage("Inexistent connection property value, defaulting to true");
-		__keep_connection = true;
+		desired_connection = true;
 	}
+
+	__globals.setKeepConnection(desired_connection);
 }
 
-void __handleCommand(websockets::WebsocketsClient& client, const std::string& message) {
+static void __handleCommand(websockets::WebsocketsClient& client, const std::string& message) {
 	std::string command_name = "";
 	std::string host_name = "";
 
