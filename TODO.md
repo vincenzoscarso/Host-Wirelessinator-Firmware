@@ -22,7 +22,7 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
 - [x] Make code non-blocking:
   - [x] Fix: __acceptNewConnections() should not be blocking
   - [x] Fix: __rejectNewConnections() should not be blocking
-- [ ] Handle wifi disconnection
+- [x] Handle wifi disconnection
 - [ ] implement an handler for client.onEvent() function 
 - [ ] Implement "Modem-sleep" to make the Arduino use less energy when idling
 - [ ] Add a command to reboot arduino

@@ -24,6 +24,7 @@ void setup() {
 
 void loop() {
 	__printInfos();
+	WifiHandler::wifiLoop();
 	ServerHandler::serverLoop();
 }
 
