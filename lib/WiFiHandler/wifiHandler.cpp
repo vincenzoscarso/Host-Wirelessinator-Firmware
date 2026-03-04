@@ -10,7 +10,6 @@ static String __getWifiStatusString();
 
 void WifiHandler::wifiSetup() {
 	printInfoMessage("Starting wifiSetup procedure...");
-	WiFi.setHostname(HOST_NAME);
 
 	__connectToWifi();
 
@@ -22,7 +21,7 @@ void WifiHandler::wifiLoop() {
 
 	if (millis() - last_connection_check >= DELAY_BETWEEN_WIFI_CONNECTION_CHECK) {
 		if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-			printErrorMessage("Lost WiFi connection retrying to connect...")
+			printErrorMessage("Lost WiFi connection retrying to connect...");
 			__connectToWifi();
 		}
 
@@ -32,6 +31,8 @@ void WifiHandler::wifiLoop() {
 
 void __connectToWifi() {
 	uint64_t status;
+
+	WiFi.setHostname(HOST_NAME);
 
 	do {
 		WiFi.begin(secrets::WIFI_SSID.c_str(), secrets::WIFI_PASSWORD.c_str());
@@ -43,8 +44,9 @@ void __connectToWifi() {
 			delay(DELAY_BETWEEN_WIFI_CONNECTION_TRIALS);
 		}
 	} while (status != WL_CONNECTED);
-
 	printInfoMessage("Successfully obtained a WiFi connection: {%s}", __getWifiStatusString().c_str());
+
+	WiFi.setSleep(true);
 }
 
 String __getWifiStatusString() {
