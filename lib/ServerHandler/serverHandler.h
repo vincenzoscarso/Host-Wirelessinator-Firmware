@@ -4,8 +4,10 @@
 #define SERVER_PORT (55555)
 #define SERVER_MESSAGE_BUFFER_SIZE (1024)
 
+namespace ServerHandler {
 /** MUST BE CALLED AFTER A WIFI CONNECTION IS ENSTABILISHED */
 void serverSetup();
 void serverLoop();
+}
 
 #endif /* SERVERHANDLER_H */

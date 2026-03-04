@@ -17,14 +17,14 @@ void setup() {
 
 	componentHandler::componentsSetup();
 	WifiHandler::wifiSetup();
-	serverSetup();
+	ServerHandler::serverSetup();
 
 	printInfoMessage("Setup procedure ended");
 }
 
 void loop() {
 	__printInfos();
-	serverLoop();
+	ServerHandler::serverLoop();
 }
 
 void __printInfos() {

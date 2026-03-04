@@ -16,7 +16,7 @@ static void __handleConnectedClientConnection();
 static void __updateConnectionMode(const std::string& message);
 static void __handleCommand(websockets::WebsocketsClient& client, const std::string& message);
 
-void serverSetup() {
+void ServerHandler::serverSetup() {
 	printInfoMessage("Starting serverSetup procedure...");
 
 	if (WiFi.waitForConnectResult() != WL_CONNECTED) {
@@ -36,7 +36,7 @@ void serverSetup() {
 	printInfoMessage("serverSetup procedure ended");
 }
 
-void serverLoop() {
+void ServerHandler::serverLoop() {
 	if (!__globals.isServerAvailable()) {
 		printErrorMessage("WebSockets' server is not live");
 		while (1)
