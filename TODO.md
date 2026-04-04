@@ -7,7 +7,6 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
 - [x] Show arduino status
 - [x] Fix: host width for mobile
 - [x] Improve typescript code modularity
-- [ ] Use HTML templates for hosts rendering
 
 ### Arduino:
 - [x] Feature: Wake-On-LAN support:
@@ -26,6 +25,7 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
 - [x] Implement "Modem-sleep" to make the Arduino use less energy when idling
 
 ## LATER:
+- [ ] Use HTML templates for hosts rendering
 - [ ] implement an handler for client.onEvent() function 
 - [ ] Add a command to reboot arduino
 - [ ] Choose better colors
