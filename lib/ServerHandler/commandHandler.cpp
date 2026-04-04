@@ -112,10 +112,12 @@ void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
 
 void __handleRebootCommand(websockets::WebsocketsClient& client, Host host) {
 	printErrorMessage("Reboot command is currently not implemented");
+	client.send("Reboot command is currently not implemented");
 }
 
 void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host host) {
-	printErrorMessage("Force Shutdown command is currently not implemented");
+	printErrorMessage("ForceShutdown command is currently not implemented");
+	client.send("ForceShutdown command is currently not implemented");
 
 	/* printInfoMessage("Force shutting down system on host: %s", host.getName().c_str());
 
@@ -130,6 +132,7 @@ void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host hos
 
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
 	printErrorMessage("GetStatus command is currently not implemented");
+	client.send("GetStatus command is currently not implemented");
 }
 
 /*------------------------------
@@ -143,8 +146,10 @@ void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client) {
 
 void __handleInformationsCommand(websockets::WebsocketsClient& client) {
 	printErrorMessage("Informations command is currently not implemented");
+	client.send("Informations command is currently not implemented");
 }
 
 void __handleHelpCommand(websockets::WebsocketsClient& client) {
 	printErrorMessage("Help command is currently not implemented");
+	client.send("Help command is currently not implemented");
 }
