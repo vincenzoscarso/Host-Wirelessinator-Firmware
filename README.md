@@ -67,5 +67,9 @@ Header:     |Connection:[keep_connection, close_connection]\n
 Command:    |{a command from the commandlist}
 ```
 
+## Uso remoto e hosting dell'interfaccia web
 
+In quanto lo scopo iniziale di questo progetto era creare un qualcosa che mi permettesse di accendere il mio PC anche in remoto, e quindi fuori dalla mia rete locale, ho configurato sul mio router una VPN a cui posso accedere in qualsiasi momento dal mio cellulare. Questo oltre al servizio di Dynamic DNS che ho sfruttato per ottenere un indirizzo sempre valido al mio router di casa.
+
+Per quanto riguarda la pagina Web ho deciso di ospitarla in modo locale direttamente sul mio cellulare utilizzando Termux e il server HTTP nativo di Python.
 
