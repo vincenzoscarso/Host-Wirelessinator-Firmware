@@ -7,8 +7,20 @@
 #define SERIAL_BAUD (115200)
 
 void __printInfos();
+
+#ifdef LOG_INFOS
+
 void __printLoopsPerformed();
 void __printTasksInfos();
+
+#else /* LOG_INFOS */
+
+// clang-format off
+#define __printLoopsPerformed() do {} while (0)
+#define __printTasksInfos()     do {} while (0)
+// clang-format on
+
+#endif /* LOG_INFOS */
 
 void setup() {
 	Serial.begin(SERIAL_BAUD);
@@ -33,11 +45,13 @@ void __printInfos() {
 	//__printTasksInfos();
 }
 
+#ifdef LOG_INFOS
+
 void __printLoopsPerformed() {
 	static int cycles = 0;
 	static unsigned long last_info_print = 0;
 	const unsigned long millis_between_info_prints = 1000;
-	const int time_passed_since_last_print = millis() - last_info_print;
+	const unsigned long int time_passed_since_last_print = millis() - last_info_print;
 
 	if (time_passed_since_last_print >= millis_between_info_prints) {
 		printInfoMessage("Performed %d cycle(s) in the last %ldms", cycles, time_passed_since_last_print);
@@ -51,7 +65,7 @@ void __printLoopsPerformed() {
 void __printTasksInfos() {
 	static unsigned long last_info_print = 0;
 	const unsigned long millis_between_info_prints = 1000;
-	const int time_passed_since_last_print = millis() - last_info_print;
+	const unsigned long int time_passed_since_last_print = millis() - last_info_print;
 
 	if (time_passed_since_last_print < millis_between_info_prints)
 		return;
@@ -66,3 +80,11 @@ void __printTasksInfos() {
 
 	last_info_print = millis();
 }
+#else /* LOG_INFOS */
+
+// clang-format off
+#define __printLoopsPerformed() do {} while (0)
+#define __printTasksInfos() do {} while (0)
+// clang-format on
+
+#endif /* LOG_INFOS */
