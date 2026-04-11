@@ -13,7 +13,7 @@ static void __acceptNewConnections();
 static void __rejectNewConnections();
 static void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request);
 static void __handleConnectedClientConnection();
-static void __updateConnectionMode(const std::string& message);
+static bool __updateConnectionMode(const std::string& message);
 static void __handleCommand(websockets::WebsocketsClient& client, const std::string& message);
 
 void ServerHandler::serverSetup() {
@@ -90,15 +90,30 @@ static void __handleClientRequests(websockets::WebsocketsClient& client, websock
 
 	if (!raw_request.isText()) {
 		printErrorMessage("The message received from the client is not text, skipping");
+		__globals.setIsRequestBeingHandled(false);
 		return;
 	}
 
 	std::string str_request = utils::toStdString(raw_request.c_str());
 	printInfoMessage("Got request:\n%s", str_request.c_str());
 
-	__updateConnectionMode(str_request);
+	if (__updateConnectionMode(str_request) != true) {
+		client.send("Request ignored: Missing foundamental headers");
+		printErrorMessage("Request ignored: Missing foundamental headers");
+		__globals.setIsRequestBeingHandled(false);
+		return;
+	}
 
-	std::string command = utils::trim(utils::split(str_request, "-- HEADER END --\n")[1]);
+	auto parts = utils::split(str_request, "-- HEADER END --\n");
+
+	if (parts.size() < 2) {
+		client.send("Request ignored: missing body");
+		printErrorMessage("Request ignored: no body after header delimiter");
+		__globals.setIsRequestBeingHandled(false);
+		return;
+	}
+
+	std::string command = utils::trim(parts[1]);
 
 	printInfoMessage("New request from a client, got command: %s", command.c_str());
 	componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_ON_COMMAND);
@@ -118,37 +133,55 @@ static void __handleConnectedClientConnection() {
 
 	__globals.getClient().poll();
 
-	if ((now - last_activity) < __globals.MS_TO_SEND_A_COMMAND_AFTER_CONNECTION)
+	if ((now - last_activity) < __globals.MS_TO_SEND_A_COMMAND_AFTER_CONNECTION) {
 		return;
+	}
 
-	if (is_request_being_handled)
+	if (is_request_being_handled) {
 		return;
+	}
 
-	if (!is_timed_out && keep_connection)
+	if (!is_timed_out && keep_connection) {
 		return;
+	}
 
 	printInfoMessage("Closing client connection: %s", is_timed_out ? "timeout" : "close requested / no request received");
 	__globals.getClient().close();
 	__globals.setClientConnected(false);
 }
 
-static void __updateConnectionMode(const std::string& message) {
+static bool __updateConnectionMode(const std::string& message) {
 	int line_number = utils::getLineNumberOfString(message, "Connection");
+
+	if (line_number == std::string::npos) {
+		printErrorMessage("Invalid request: 'Connection' header not found");
+		return false;
+	}
+
 	auto connection_property = utils::getLine(message, line_number);
 	auto splitted_connection_property = utils::split(connection_property, ":");
+
+	if (splitted_connection_property.size() < 2) {
+		printErrorMessage("Invalid request: Malformed 'Connection' header");
+		return false;
+	}
+
 	std::string connection_property_value = utils::trim(splitted_connection_property[1]);
 
-	bool desired_connection = true;
+	bool desired_connection = false;
+
 	if (connection_property_value == "keep_connection") {
 		desired_connection = true;
 	} else if (connection_property_value == "close_connection") {
 		desired_connection = false;
 	} else {
-		printErrorMessage("Inexistent connection property value, defaulting to true");
-		desired_connection = true;
+		printErrorMessage("Inexistent connection property value, defaulting to false");
+		desired_connection = false;
 	}
 
 	__globals.setKeepConnection(desired_connection);
+
+	return true;
 }
 
 static void __handleCommand(websockets::WebsocketsClient& client, const std::string& message) {
