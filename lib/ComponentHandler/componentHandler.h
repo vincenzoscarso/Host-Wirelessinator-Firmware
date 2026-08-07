@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <Host.h>
 #include <logHandler.h>
-#include <types.h>
+#include <Types.h>
 
 #define ANALOG_HIGH (255)
 #define ANALOG_LOW (0)

@@ -1,4 +1,4 @@
-#include "serverGlobals.h"
+#include <ServerGlobals.h>
 
 ServerGlobals::ServerGlobals()
     : keep_connection(false)
