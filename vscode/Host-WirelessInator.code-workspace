@@ -10,7 +10,7 @@
 		},
 		"liveServer.settings.multiRootWorkspaceName": "Host-WirelessInator-GUI",
 		"clangd.arguments": [
-			"--compile-commands-dir=/home/vincenzo/Desktop/Host-WirelessInator/.cache/clangd",
+			"--compile-commands-dir=/home/vincenzo/Code/_Projects/Host-WirelessInator/.cache/clangd",
 			"--query-driver=/home/vincenzo/.platformio/packages/toolchain-*/bin/*,/home/vincenzo/.platformio/packages/tool-*/bin/*"
 		]
 	}
