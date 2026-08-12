@@ -1,3 +1,4 @@
+#include "tiny_websockets/internals/websockets_endpoint.hpp"
 #include <ArduinoWebsockets.h>
 #include <Hosts.h>
 #include <ServerGlobals.h>
@@ -5,6 +6,7 @@
 #include <commandHandler.h>
 #include <componentHandler.h>
 #include <serverHandler.h>
+#include <sys/unistd.h>
 #include <utils.h>
 
 static ServerGlobals __globals;
@@ -70,7 +72,11 @@ static void __acceptNewConnections() {
 
 	__globals.getClient().onMessage(__handleClientRequests);
 
-	printInfoMessage("Client accepted");
+	setLogClient(&__globals.getClient(), [](void* client, const char* message) {
+		static_cast<websockets::WebsocketsClient*>(client)->send(message);
+	});
+
+	printInfoMessage("Client accepted %s");
 }
 
 static void __rejectNewConnections() {
@@ -80,26 +86,24 @@ static void __rejectNewConnections() {
 
 	auto client_to_reject = __globals.getServer().accept();
 
-	client_to_reject.send("Socket is busy, connection rejected");
 	client_to_reject.close();
-	printInfoMessage("Another client tried to connect but socket was busy, client rejected");
+	printInfoMessage(true, "Socket is busy, rejecting connection");
 }
 
 static void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request) {
 	__globals.setIsRequestBeingHandled(true);
 
 	if (!raw_request.isText()) {
-		printErrorMessage("The message received from the client is not text, skipping");
+		printErrorMessage(true,"Message received is not text, skipping");
 		__globals.setIsRequestBeingHandled(false);
 		return;
 	}
 
 	std::string str_request = utils::toStdString(raw_request.c_str());
-	printInfoMessage("Got request:\n%s", str_request.c_str());
+	printInfoMessage(true,"Got request:\n%s", str_request.c_str());
 
 	if (__updateConnectionMode(str_request) != true) {
-		client.send("Request ignored: Missing foundamental headers");
-		printErrorMessage("Request ignored: Missing foundamental headers");
+		printErrorMessage(true, "Request ignored: Missing foundamental headers");
 		__globals.setIsRequestBeingHandled(false);
 		return;
 	}
@@ -107,15 +111,14 @@ static void __handleClientRequests(websockets::WebsocketsClient& client, websock
 	auto parts = utils::split(str_request, "-- HEADER END --\n");
 
 	if (parts.size() < 2) {
-		client.send("Request ignored: missing body");
-		printErrorMessage("Request ignored: no body after header delimiter");
+		printErrorMessage(true, "Request ignored: no body after header delimiter");
 		__globals.setIsRequestBeingHandled(false);
 		return;
 	}
 
 	std::string command = utils::trim(parts[1]);
 
-	printInfoMessage("New request from a client, got command: %s", command.c_str());
+	printInfoMessage(true,"New request, got command: %s", command.c_str());
 	componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_ON_COMMAND);
 
 	__handleCommand(client, command);
@@ -145,8 +148,9 @@ static void __handleConnectedClientConnection() {
 		return;
 	}
 
-	printInfoMessage("Closing client connection: %s", is_timed_out ? "timeout" : "close requested / no request received");
-	__globals.getClient().close();
+	printInfoMessage(true, "Closing client connection: %s", is_timed_out ? "timeout" : "request timeout");
+	clearLogClient();
+	__globals.getClient().close(websockets::CloseReason_NormalClosure);
 	__globals.setClientConnected(false);
 }
 
@@ -154,7 +158,7 @@ static bool __updateConnectionMode(const std::string& message) {
 	int line_number = utils::getLineNumberOfString(message, "Connection");
 
 	if (line_number == std::string::npos) {
-		printErrorMessage("Invalid request: 'Connection' header not found");
+		printErrorMessage(true,"Invalid request: 'Connection' header not found");
 		return false;
 	}
 
@@ -162,7 +166,7 @@ static bool __updateConnectionMode(const std::string& message) {
 	auto splitted_connection_property = utils::split(connection_property, ":");
 
 	if (splitted_connection_property.size() < 2) {
-		printErrorMessage("Invalid request: Malformed 'Connection' header");
+		printErrorMessage(true,"Invalid request: Malformed 'Connection' header");
 		return false;
 	}
 
@@ -175,7 +179,7 @@ static bool __updateConnectionMode(const std::string& message) {
 	} else if (connection_property_value == "close_connection") {
 		desired_connection = false;
 	} else {
-		printErrorMessage("Inexistent connection property value, defaulting to false");
+		printErrorMessage(true,"Inexistent connection property value, defaulting to false");
 		desired_connection = false;
 	}
 

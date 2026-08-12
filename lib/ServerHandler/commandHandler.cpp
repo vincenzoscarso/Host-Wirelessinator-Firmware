@@ -60,9 +60,10 @@ bool commandHandler::checkForCommandAndExcecute(websockets::WebsocketsClient& cl
 
 bool __checkForCommandAndExcecuteInHostCommandsMap(websockets::WebsocketsClient& client, const std::string& command_name, const std::string& host_name) {
 	auto command = host_commands_map.find(command_name);
+
 	if (command != host_commands_map.end()) {
 		if (!Hosts::isHostNameValid(host_name)) {
-			printErrorMessage("Invalid host name '%s'", host_name.c_str());
+			printErrorMessage(true, "Invalid host name '%s'", host_name.c_str());
 			return false;
 		}
 
@@ -87,9 +88,7 @@ bool __checkForCommandAndExcecuteInDeviceCommandsMap(websockets::WebsocketsClien
   ============*/
 
 void commandHandler::handleNoCommand(websockets::WebsocketsClient& client, const std::string& message) {
-	std::string response = "Unknown command: " + message;
-	printErrorMessage(response.c_str());
-	client.send(response.c_str());
+	printErrorMessage(true, "Unknown command: %s", message.c_str());
 }
 
 /*----------------------------
@@ -97,7 +96,7 @@ void commandHandler::handleNoCommand(websockets::WebsocketsClient& client, const
   ----------------------------*/
 
 void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
-	printInfoMessage("Booting system on host: %s", host.getName().c_str());
+	printInfoMessage(true,"Booting system on host: %s", host.getName().c_str());
 
 	if (host.isUseMagicPacketEnabled()) {
 		WifiHandler::sendMagicPacket(host.getMacAddress());
@@ -106,18 +105,16 @@ void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
 		delay(1000);
 		componentHandler::setHostRelayPinStatus(host, HIGH);
 	} else {
-		printErrorMessage("Couldn't find a method to boot this host, check configuration");
+		printErrorMessage(true, "Couldn't find a method to boot this host, check configuration");
 	}
 }
 
 void __handleRebootCommand(websockets::WebsocketsClient& client, Host host) {
-	printErrorMessage("Reboot command is currently not implemented");
-	client.send("Reboot command is currently not implemented");
+	printErrorMessage(true, "Reboot command is currently not implemented");
 }
 
 void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host host) {
-	printErrorMessage("ForceShutdown command is currently not implemented");
-	client.send("ForceShutdown command is currently not implemented");
+	printErrorMessage(true, "ForceShutdown command is currently not implemented");
 
 	/* printInfoMessage("Force shutting down system on host: %s", host.getName().c_str());
 
@@ -131,8 +128,7 @@ void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host hos
 }
 
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
-	printErrorMessage("GetStatus command is currently not implemented");
-	client.send("GetStatus command is currently not implemented");
+	printErrorMessage(true, "GetStatus command is currently not implemented");
 }
 
 /*------------------------------
@@ -140,16 +136,14 @@ void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
   ------------------------------*/
 
 void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client) {
-	printInfoMessage("Sending hosts JSON to the client...");
+	printInfoMessage("Sending hosts JSON to the client:\n%s", secrets::hosts_json.dump().c_str());
 	client.send(secrets::hosts_json.dump().c_str());
 }
 
 void __handleInformationsCommand(websockets::WebsocketsClient& client) {
-	printErrorMessage("Informations command is currently not implemented");
-	client.send("Informations command is currently not implemented");
+	printErrorMessage(true, "Informations command is currently not implemented");
 }
 
 void __handleHelpCommand(websockets::WebsocketsClient& client) {
-	printErrorMessage("Help command is currently not implemented");
-	client.send("Help command is currently not implemented");
+	printErrorMessage(true, "Help command is currently not implemented");
 }

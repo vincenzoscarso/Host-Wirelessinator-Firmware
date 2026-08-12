@@ -54,7 +54,7 @@ void __printLoopsPerformed() {
 	const unsigned long int time_passed_since_last_print = millis() - last_info_print;
 
 	if (time_passed_since_last_print >= millis_between_info_prints) {
-		printInfoMessage("Performed %d cycle(s) in the last %ldms", cycles, time_passed_since_last_print);
+		printInfoMessage(true,"Performed %d cycle(s) in the last %ldms", cycles, time_passed_since_last_print);
 		last_info_print = millis();
 		cycles = 0;
 	}

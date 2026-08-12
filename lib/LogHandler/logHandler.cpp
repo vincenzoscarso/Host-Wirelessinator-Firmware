@@ -8,8 +8,22 @@ static void __printInfoHeader(const char* function);
 static void __printWarningHeader(const char* function);
 static void __printErrorHeader(const char* file, const char* function, int line);
 static void __shortenFuntionName(char* function_name_buffer, const char* function);
+static void __formatHeader(char* outbuf, size_t outsize, const char* file, const char* function, int line, int log_level);
 
-void __printLogMessage(const char* file, const char* function, int line, const char log_level, const char* format, ...) {
+static void* __log_client = nullptr;
+static void (*__log_client_send_fn)(void* client, const char* message) = nullptr;
+
+void setLogClient(void* client, void (*send_fn)(void* client, const char* message)) {
+	__log_client = client;
+	__log_client_send_fn = send_fn;
+}
+
+void clearLogClient() {
+	__log_client = nullptr;
+	__log_client_send_fn = nullptr;
+}
+
+void __printLogMessage(const char* file, const char* function, int line, const char log_level, bool send_to_client, const char* format, ...) {
 	const char truncated_message_notice[] = "...[some characters got truncated]";
 	char buffer[MESSAGE_BUFFER_SIZE];
 	va_list p_arguments;
@@ -29,13 +43,27 @@ void __printLogMessage(const char* file, const char* function, int line, const c
 	va_end(p_arguments);
 
 	if (result > 0 && result < MESSAGE_BUFFER_SIZE) { // Everything written correctly
-		__printHeader(file, function, line, log_level);
+		char header_buffer[256];
+		__formatHeader(header_buffer, sizeof(header_buffer), file, function, line, log_level);
+		Serial.print(header_buffer);
 		Serial.println(buffer);
 
+		if (send_to_client && __log_client != nullptr && __log_client_send_fn != nullptr) {
+			String combined = String(header_buffer) + String(buffer);
+			__log_client_send_fn(__log_client, combined.c_str());
+		}
+
 	} else if (result > 0 && result >= MESSAGE_BUFFER_SIZE) { // Truncated some characters
-		__printHeader(file, function, line, log_level);
+		char header_buffer[256];
+		__formatHeader(header_buffer, sizeof(header_buffer), file, function, line, log_level);
+		Serial.print(header_buffer);
 		Serial.print(buffer);
 		Serial.println(truncated_message_notice);
+
+		if (send_to_client && __log_client != nullptr && __log_client_send_fn != nullptr) {
+			String combined = String(header_buffer) + String(buffer) + String(truncated_message_notice);
+			__log_client_send_fn(__log_client, combined.c_str());
+		}
 
 	} else if (result < 0) { // Error (value in errno)
 		printErrorMessage("vsnprintf() returned %d, failed the fetching of a message (errno: %d)", result, errno);
@@ -55,6 +83,53 @@ void __printHeader(const char* file, const char* function, int line, int log_lev
 		break;
 	case 'd':
 		__printDebugHeader(function);
+	}
+}
+
+static void __formatHeader(char* outbuf, size_t outsize, const char* file, const char* function, int line, int log_level) {
+	if (outbuf == nullptr || outsize == 0)
+		return;
+	outbuf[0] = '\0';
+	switch (log_level) {
+	case 'i': {
+		int size_of_function_name = strlen(function);
+		if (size_of_function_name > FUNCTION_NAME_SIZE) {
+			char function_name_buffer[FUNCTION_NAME_SIZE];
+			__shortenFuntionName(function_name_buffer, function);
+			snprintf(outbuf, outsize, "[INFO   ][%s...]: ", function_name_buffer);
+		} else {
+			snprintf(outbuf, outsize, "[INFO   ][%+*s]: ", FUNCTION_NAME_SIZE, function);
+		}
+		break;
+	}
+	case 'w': {
+		int size_of_function_name = strlen(function);
+		if (size_of_function_name > FUNCTION_NAME_SIZE) {
+			char function_name_buffer[FUNCTION_NAME_SIZE];
+			__shortenFuntionName(function_name_buffer, function);
+			snprintf(outbuf, outsize, "[WARNING][%s...]: ", function_name_buffer);
+		} else {
+			snprintf(outbuf, outsize, "[WARNING][%+*s]: ", FUNCTION_NAME_SIZE, function);
+		}
+		break;
+	}
+	case 'e': {
+		snprintf(outbuf, outsize, "[ERROR  ][%s:%d][%s]:\n   \\---> ", file, line, function);
+		break;
+	}
+	case 'd': {
+		int size_of_function_name = strlen(function);
+		if (size_of_function_name > FUNCTION_NAME_SIZE) {
+			char function_name_buffer[FUNCTION_NAME_SIZE];
+			__shortenFuntionName(function_name_buffer, function);
+			snprintf(outbuf, outsize, "[DEBUG  ][%s...]: ", function_name_buffer);
+		} else {
+			snprintf(outbuf, outsize, "[DEBUG  ][%+*s]: ", FUNCTION_NAME_SIZE, function);
+		}
+		break;
+	}
+	default:
+		snprintf(outbuf, outsize, "");
 	}
 }
 

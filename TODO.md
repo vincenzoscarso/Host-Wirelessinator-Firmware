@@ -33,4 +33,5 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
 - [ ] Add a documentation
 - [ ] Improve logging:
   - [ ] Accept std::string as a parameter
+  - [x] Implement option to send logs to client
   - [x] Add a "printDebugInfo" function

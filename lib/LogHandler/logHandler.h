@@ -26,40 +26,32 @@
 	#include <stdarg.h>
 	#include <stdio.h>
 
+
 	#define MESSAGE_BUFFER_SIZE 1024
 	#define FUNCTION_NAME_SIZE 32
 
-	/*
-	* __FILE__: complete path to the file that called the function where it's specified
-	* __func__: name of the function that called the function where it's specified
-	* __LINE__: line of the file where the function was called
-	*/
+	#define printDebugMessage(...) __printLogMessage(__FILE__, __func__, __LINE__, 'd', __VA_ARGS__)
+	#define printInfoMessage(...) __printLogMessage(__FILE__, __func__, __LINE__, 'i', __VA_ARGS__)
+	#define printWarningMessage(...) __printLogMessage(__FILE__, __func__, __LINE__, 'w', __VA_ARGS__)
+	#define printErrorMessage(...) __printLogMessage(__FILE__, __func__, __LINE__, 'e', __VA_ARGS__)
 
-	#ifdef LOG_DEBUG
-		#define printDebugMessage(format, ...) __printLogMessage(__FILE__, __func__, __LINE__, 'd', format, ##__VA_ARGS__);
-	#else /* LOG_DEBUG */
-		#define printDebugMessage(format, ...) do {} while (0);
-	#endif /* LOG_DEBUG */
+	void __printLogMessage(const char* file, const char* function, int line, const char log_level, bool send_to_client, const char* format, ...);
+	inline void __printLogMessage(const char* file, const char* function, int line, const char log_level, const char* format) {
+		__printLogMessage(file, function, line, log_level, false, format);
+	}
+	inline void __printLogMessage(const char* file, const char* function, int line, const char log_level, const char* format, bool send_to_client) {
+		__printLogMessage(file, function, line, log_level, send_to_client, format);
+	}
+	template <typename T, typename... Args>
+	inline void __printLogMessage(const char* file, const char* function, int line, const char log_level, const char* format, T arg, Args... args) {
+		__printLogMessage(file, function, line, log_level, false, format, arg, args...);
+	}
 
-	#ifdef LOG_INFOS
-		#define printInfoMessage(format, ...) __printLogMessage(__FILE__, __func__, __LINE__, 'i', format, ##__VA_ARGS__);
-	#else
-		#define printInfoMessage(format, ...) do {} while (0);
-	#endif
+	void __printLogMessage(const char* file, const char* function, int line, const char log_level, bool send_to_client, const char* format, ...);
 
-	#ifdef LOG_WARNINGS
-		#define printWarningMessage(format, ...) __printLogMessage(__FILE__, __func__, __LINE__, 'w', format, ##__VA_ARGS__);
-	#else
-		#define printWarningMessage(format, ...) do {} while (0);
-	#endif
-
-	#ifdef LOG_ERRORS
-		#define printErrorMessage(format, ...) __printLogMessage(__FILE__, __func__, __LINE__, 'e', format, ##__VA_ARGS__);
-	#else
-		#define printErrorMessage(format, ...) do {} while (0);
-	#endif
-
-	void __printLogMessage(const char* file, const char* function, int line, const char log_level, const char* format, ...);
+using LogClientSendFn = void (*)(void* client, const char* message);
+void setLogClient(void* client, LogClientSendFn send_fn);
+void clearLogClient();
 #else
 	#define printDebugMessage(format, ...) do {} while (0);
 	#define printInfoMessage(format, ...) do {} while (0);
