@@ -15,8 +15,8 @@ private:
 	websockets::WebsocketsClient client;
 
 public:
-	static const unsigned long CLIENT_TIMEOUT_MS = 30UL * 1000UL;
-	static const unsigned long MS_TO_SEND_A_COMMAND_AFTER_CONNECTION = 5000UL;
+	static const unsigned long CLIENT_TIMEOUT_MS = 5UL * 1000UL;
+	static const unsigned long MS_TO_SEND_A_COMMAND_AFTER_CONNECTION = 60UL * 1000UL;
 	
 	ServerGlobals();
 
