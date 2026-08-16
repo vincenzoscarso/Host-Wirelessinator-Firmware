@@ -1,3 +1,4 @@
+#include "IPAddress.h"
 #include <Host.h>
 #include <iostream>
 #include <logHandler.h>
@@ -9,11 +10,14 @@ Host::Host(
     bool use_relay,
     int relay_pin,
     bool use_magic_packet,
+    IPAddress ip_address,
     std::string mac_address) {
+
 	this->__name = name;
 	this->__type = type;
 	this->__use_relay = use_relay;
 	this->__relay_pin = relay_pin;
+	this->__ip_address = ip_address;
 	this->__use_magic_packet = use_magic_packet;
 	try {
 		this->__mac_address = utils::convertStringVectorToByteVector(utils::split(mac_address, ":"));
@@ -40,6 +44,10 @@ int Host::getRelayPin() {
 
 bool Host::isUseMagicPacketEnabled() {
 	return this->__use_magic_packet;
+}
+
+IPAddress Host::getIpAddress() {
+	return this->__ip_address;
 }
 
 std::vector<byte> Host::getMacAddress() {

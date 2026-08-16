@@ -1,6 +1,7 @@
 #ifndef HOST_H
 #define HOST_H
 
+#include "IPAddress.h"
 #include <Arduino.h>
 #include <string>
 
@@ -11,6 +12,7 @@ private:
 	bool __use_relay;
 	int __relay_pin;
 	bool __use_magic_packet;
+	IPAddress __ip_address;
 	std::vector<byte> __mac_address;
 
 public:
@@ -20,6 +22,7 @@ public:
 	    bool use_relay,
 	    int relay_pin,
 	    bool use_magic_packet,
+		IPAddress ip_address,
 	    std::string mac_address);
 
 	std::string getName();
@@ -27,6 +30,7 @@ public:
 	bool isUseRelayPinEnabled();
 	int getRelayPin();
 	bool isUseMagicPacketEnabled();
+	IPAddress getIpAddress();
 	std::vector<byte> getMacAddress();
 };
 

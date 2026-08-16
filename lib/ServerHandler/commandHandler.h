@@ -1,6 +1,7 @@
 #ifndef COMMANDHANDLER_H
 #define COMMANDHANDLER_H
 
+#include "IPAddress.h"
 #include <string>
 #include <ArduinoWebsockets.h>
 

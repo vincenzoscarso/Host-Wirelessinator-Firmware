@@ -1,3 +1,6 @@
+#include "IPAddress.h"
+#include "WiFiClient.h"
+#include <ESP32Ping.h>
 #include <Host.h>
 #include <Hosts.h>
 #include <commandHandler.h>
@@ -96,11 +99,12 @@ void commandHandler::handleNoCommand(websockets::WebsocketsClient& client, const
   ----------------------------*/
 
 void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
-	printInfoMessage(true,"Booting system on host: %s", host.getName().c_str());
 
 	if (host.isUseMagicPacketEnabled()) {
+		printInfoMessage(true, "Booting system with magic packet on host: %s", host.getName().c_str());
 		WifiHandler::sendMagicPacket(host.getMacAddress());
 	} else if (host.isUseRelayPinEnabled()) {
+		printInfoMessage(true, "Booting system with relay on host: %s", host.getName().c_str());
 		componentHandler::setHostRelayPinStatus(host, LOW);
 		delay(1000);
 		componentHandler::setHostRelayPinStatus(host, HIGH);
@@ -116,19 +120,26 @@ void __handleRebootCommand(websockets::WebsocketsClient& client, Host host) {
 void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host host) {
 	printErrorMessage(true, "ForceShutdown command is currently not implemented");
 
-	/* printInfoMessage("Force shutting down system on host: %s", host.getName().c_str());
+	/* printInfoMessage(true, "Force shutting down system on host: %s", host.getName().c_str());
 
 	if (host.isUseRelayPinEnabled()) {
-		componentHandler::setHostRelayPinStatus(host, HIGH);
-		delay(5000);
-		componentHandler::setHostRelayPinStatus(host, LOW);
+	    componentHandler::setHostRelayPinStatus(host, HIGH);
+	    delay(5000);
+	    componentHandler::setHostRelayPinStatus(host, LOW);
 	} else {
-		printErrorMessage("Couldn't force-shutdown this host: relay needed, check configuration");
+	    printErrorMessage(true, "Couldn't force-shutdown this host: relay needed, check configuration");
 	} */
 }
 
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
-	printErrorMessage(true, "GetStatus command is currently not implemented");
+	std::string response = "Host:" + host.getName() + ";Status:";
+
+	if (Ping.ping(host.getIpAddress()))
+		response += "Online";
+	else 
+		response += "Offline";
+	
+	client.send(response.c_str());
 }
 
 /*------------------------------
