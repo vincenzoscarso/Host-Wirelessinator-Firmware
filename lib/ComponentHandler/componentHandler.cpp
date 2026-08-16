@@ -32,7 +32,7 @@ void componentHandler::setLedBuiltInStatus(uint8_t value) {
 	return;
 }
 
-void bcomponentHandler::linkLedBuiltIn(int ripetitions) {
+void componentHandler::blinkLedBuiltIn(int ripetitions) {
 	return;
 }
 
