@@ -2,6 +2,8 @@
 For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsockets/wiki 
 
 
+- [ ] implement informations and help commands
+- [ ] when logging is disabled messages that need to go to the client MUST be sent
 - [ ] make command handling non-blocking
 - [ ] implement heartbeat to detect client disconnection instead of using delays
 - [ ] implement an handler for client.onEvent() function to boost performance
