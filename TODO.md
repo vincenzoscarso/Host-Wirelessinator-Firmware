@@ -1,8 +1,10 @@
 ### Todo
 For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsockets/wiki 
 
+
+- [ ] make command handling non-blocking
 - [ ] implement heartbeat to detect client disconnection instead of using delays
-- [ ] implement an handler for client.onEvent() function 
+- [ ] implement an handler for client.onEvent() function to boost performance
 - [ ] Add a command to reboot arduino
 - [ ] Add a documentation
 

@@ -53,7 +53,7 @@ void ServerHandler::serverLoop() {
 
 	if (__globals.isClientConnected()) {
 		__handleConnectedClientConnection();
-	}
+	} 
 }
 
 static void __acceptNewConnections() {

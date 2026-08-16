@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include <Host.h>
-#include <logHandler.h>
 #include <Types.h>
+#include <logHandler.h>
 
 #define ANALOG_HIGH (255)
 #define ANALOG_LOW (0)
