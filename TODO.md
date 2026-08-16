@@ -1,14 +1,17 @@
-## IMPORTANT
+### Todo
 For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsockets/wiki 
 
-### Web-UI:
+- [ ] implement heartbeat to detect client disconnection instead of using delays
+- [ ] implement an handler for client.onEvent() function 
+- [ ] Add a command to reboot arduino
+- [ ] Add a documentation
+
+### Done
 - [x] Divide the css in multiple files
 - [x] Divide the js in multiple files
 - [x] Show arduino status
 - [x] Fix: host width for mobile
 - [x] Improve typescript code modularity
-
-### Arduino:
 - [x] Feature: Wake-On-LAN support:
   - [x] write a "split" function and add it to the "utils.cpp" file
   - [x] convert the "mac_address" string obtained from the toml configs to a byte array before storing it in the "Host" object
@@ -23,15 +26,7 @@ For the Arduino websockets docs check https://github.com/gilmaimon/TinyWebsocket
   - [x] Fix: __rejectNewConnections() should not be blocking
 - [x] Handle wifi disconnection
 - [x] Implement "Modem-sleep" to make the Arduino use less energy when idling
-
-## LATER:
-- [ ] Use HTML templates for hosts rendering
-- [ ] implement an handler for client.onEvent() function 
-- [ ] Add a command to reboot arduino
-- [ ] Choose better colors
-- [ ] Add a README
-- [ ] Add a documentation
-- [ ] Improve logging:
-  - [ ] Accept std::string as a parameter
+- [x] Improve logging:
   - [x] Implement option to send logs to client
   - [x] Add a "printDebugInfo" function
+- [x] Add a README
