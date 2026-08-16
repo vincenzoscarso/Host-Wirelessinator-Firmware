@@ -8,7 +8,14 @@
 using json = nlohmann::json;
 
 std::vector<Host> Hosts::hosts;
-IPAddress __getHostIp(std::string key);
+
+std::basic_string<char> __getNameValue(std::string key);
+std::basic_string<char> __getTypeValue(std::string key);
+bool __getUseRelayValue(std::string key);
+int __getRelayPinValue(std::string key);
+bool __getUseMagicPacketValue(std::string key);
+IPAddress __getIpAddressValue(std::string key);
+std::basic_string<char> __getMacAddressValue(std::string key);
 
 bool Hosts::updateHostsVector() {
 	if (Hosts::getNumberOfHosts() <= 0) {
@@ -21,13 +28,13 @@ bool Hosts::updateHostsVector() {
 
 		try {
 			hosts.emplace_back(
-			    secrets::hosts_json[key].value("name", ""),
-			    secrets::hosts_json[key].value("type", ""),
-			    secrets::hosts_json[key]["control_options"].value("use_relay", false),
-			    secrets::hosts_json[key]["control_options"].value("relay_pin", -1),
-			    secrets::hosts_json[key]["control_options"].value("use_magic_packet", false),
-			    __getHostIp(key),
-			    secrets::hosts_json[key]["addresses"].value("mac_address", ""));
+			    __getNameValue(key),
+			    __getTypeValue(key),
+			    __getUseRelayValue(key),
+			    __getRelayPinValue(key),
+			    __getUseMagicPacketValue(key),
+			    __getIpAddressValue(key),
+			    __getMacAddressValue(key));
 		} catch (const std::exception& e) {
 			printErrorMessage("Failed to obtain values from the table: %s", e.what());
 			return false;
@@ -37,9 +44,6 @@ bool Hosts::updateHostsVector() {
 	return true;
 }
 
-/**
- * @returns number of hosts if existent, else 0
- */
 int Hosts::getNumberOfHosts() {
 	return secrets::hosts_json.value("number_of_hosts", 0);
 }
@@ -64,8 +68,32 @@ int Hosts::getHostVectorIndexFromHostName(const std::string& host_name) {
 
 // GETTERS ################################
 
-IPAddress __getHostIp(std::string key) {
+std::basic_string<char> __getNameValue(std::string key) {
+	return secrets::hosts_json[key].value("name", "");
+}
+
+std::basic_string<char> __getTypeValue(std::string key) {
+	return secrets::hosts_json[key].value("type", "");
+}
+
+bool __getUseRelayValue(std::string key) {
+	return secrets::hosts_json[key]["control_options"].value("use_relay", false);
+}
+
+int __getRelayPinValue(std::string key) {
+	return secrets::hosts_json[key]["control_options"].value("relay_pin", -1);
+}
+
+bool __getUseMagicPacketValue(std::string key) {
+	return secrets::hosts_json[key]["control_options"].value("use_magic_packet", false);
+}
+
+IPAddress __getIpAddressValue(std::string key) {
 	IPAddress ip_address;
 	ip_address.fromString(secrets::hosts_json[key]["addresses"].value("ip_address", "").c_str());
 	return ip_address;
+}
+
+std::basic_string<char> __getMacAddressValue(std::string key) {
+	return secrets::hosts_json[key]["addresses"].value("mac_address", "");
 }

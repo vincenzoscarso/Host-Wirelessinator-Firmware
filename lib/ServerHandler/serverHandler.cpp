@@ -86,21 +86,22 @@ static void __rejectNewConnections() {
 
 	auto client_to_reject = __globals.getServer().accept();
 
+	printInfoMessage("Received new connection request but socket is currently busy: rejecting connection");
+	client_to_reject.send("Socket is busy, rejecting connection");
 	client_to_reject.close();
-	printInfoMessage(true, "Socket is busy, rejecting connection");
 }
 
 static void __handleClientRequests(websockets::WebsocketsClient& client, websockets::WebsocketsMessage raw_request) {
 	__globals.setIsRequestBeingHandled(true);
 
 	if (!raw_request.isText()) {
-		printErrorMessage(true,"Message received is not text, skipping");
+		printErrorMessage(true, "Message received is not text, skipping");
 		__globals.setIsRequestBeingHandled(false);
 		return;
 	}
 
 	std::string str_request = utils::toStdString(raw_request.c_str());
-	printInfoMessage(true,"Got request:\n%s", str_request.c_str());
+	printInfoMessage(true, "Got request:\n%s", str_request.c_str());
 
 	if (__updateConnectionMode(str_request) != true) {
 		printErrorMessage(true, "Request ignored: Missing foundamental headers");
@@ -118,7 +119,7 @@ static void __handleClientRequests(websockets::WebsocketsClient& client, websock
 
 	std::string command = utils::trim(parts[1]);
 
-	printInfoMessage(true,"New request, got command: %s", command.c_str());
+	printInfoMessage(true, "New request, got command: %s", command.c_str());
 	componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_ON_COMMAND);
 
 	__handleCommand(client, command);
@@ -158,7 +159,7 @@ static bool __updateConnectionMode(const std::string& message) {
 	int line_number = utils::getLineNumberOfString(message, "Connection");
 
 	if (line_number == std::string::npos) {
-		printErrorMessage(true,"Invalid request: 'Connection' header not found");
+		printErrorMessage(true, "Invalid request: 'Connection' header not found");
 		return false;
 	}
 
@@ -166,7 +167,7 @@ static bool __updateConnectionMode(const std::string& message) {
 	auto splitted_connection_property = utils::split(connection_property, ":");
 
 	if (splitted_connection_property.size() < 2) {
-		printErrorMessage(true,"Invalid request: Malformed 'Connection' header");
+		printErrorMessage(true, "Invalid request: Malformed 'Connection' header");
 		return false;
 	}
 
@@ -179,7 +180,7 @@ static bool __updateConnectionMode(const std::string& message) {
 	} else if (connection_property_value == "close_connection") {
 		desired_connection = false;
 	} else {
-		printErrorMessage(true,"Inexistent connection property value, defaulting to false");
+		printErrorMessage(true, "Inexistent connection property value, defaulting to false");
 		desired_connection = false;
 	}
 
