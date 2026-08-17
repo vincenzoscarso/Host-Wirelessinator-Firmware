@@ -77,6 +77,7 @@ static void __acceptNewConnections() {
 	});
 
 	printInfoMessage("Client accepted %s");
+	new_client.send("Connected\n-- HEADER END --\n");
 }
 
 static void __rejectNewConnections() {
