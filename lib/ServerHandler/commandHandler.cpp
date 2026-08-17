@@ -123,21 +123,21 @@ void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
 	body += host.getName().c_str();
 	std::string response = __getResponse("Boot", body);
 	client.send(response.c_str());
-	printInfoMessage(true, "Sent response: %s", response.c_str());
+	printInfoMessage(true, "Sent response:\n%s", response.c_str());
 }
 
 void __handleRebootCommand(websockets::WebsocketsClient& client, Host host) {
 	std::string body = "Reboot command is currently not implemented for host: " + host.getName();
 	std::string response = __getResponse("Reboot", body);
 	client.send(response.c_str());
-	printInfoMessage(true, "Sent response: %s", response.c_str());
+	printInfoMessage(true, "Sent response:\n%s", response.c_str());
 }
 
 void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host host) {
 	std::string body = "ForceShutdown command is currently not implemented for host: " + host.getName();
 	std::string response = __getResponse("ForceShutdown", body);
 	client.send(response.c_str());
-	printInfoMessage(true, "Sent response: %s", response.c_str());
+	printInfoMessage(true, "Sent response:\n%s", response.c_str());
 
 	/* printInfoMessage(true, "Force shutting down system on host: %s", host.getName().c_str());
 
@@ -157,7 +157,7 @@ void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
 
 	std::string response = __getResponse("GetStatus", body.dump());
 	client.send(response.c_str());
-	printInfoMessage(true, "Sent response: %s", response.c_str());
+	printInfoMessage(true, "Sent response:\n%s", response.c_str());
 }
 
 /*------------------------------
@@ -167,7 +167,7 @@ void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
 void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client) {
 	std::string response = __getResponse("GetHostsJson", secrets::hosts_json.dump());
 	client.send(response.c_str());
-	printInfoMessage(true, "Sent response: %s", response.c_str());
+	printInfoMessage(true, "Sent response:\n%s", response.c_str());
 }
 
 void __handleInformationsCommand(websockets::WebsocketsClient& client) {
@@ -179,7 +179,7 @@ void __handleInformationsCommand(websockets::WebsocketsClient& client) {
 
 	auto response = __getResponse("Informations", body.dump());
 	client.send(response.c_str());
-	printInfoMessage(true, "Sent response: %s", response.c_str());
+	printInfoMessage(true, "Sent response:\n%s", response.c_str());
 }
 
 void __handleHelpCommand(websockets::WebsocketsClient& client) {
@@ -196,7 +196,7 @@ void __handleHelpCommand(websockets::WebsocketsClient& client) {
 
 	auto response = __getResponse("Help", body.dump());
 	client.send(response.c_str());
-	printInfoMessage(true, "Sent response: %s", response.c_str());
+	printInfoMessage(true, "Sent response:\n%s", response.c_str());
 }
 
 /*===========
