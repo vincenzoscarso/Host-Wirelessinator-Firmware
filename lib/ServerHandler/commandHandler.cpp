@@ -152,8 +152,8 @@ void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host hos
 
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
 	json body;
-	body["Host"] = host.getName();
-	body["Status"] = Ping.ping(host.getIpAddress()) ? "Online" : "Offline";
+	body["host"] = host.getName();
+	body["is_online"] = Ping.ping(host.getIpAddress()) ? true : false;
 
 	std::string response = __getResponse("GetStatus", body.dump());
 	client.send(response.c_str());
@@ -172,10 +172,10 @@ void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client) {
 
 void __handleInformationsCommand(websockets::WebsocketsClient& client) {
 	json body;
-	body["Version"] = utils::toStdString(HOST_WIRELESSINATOR_FIRMWARE_VERSION);
-	body["Board"] = utils::toStdString(ARDUINO_BOARD);
-	body["Developer"] = "Vincenzo Scarso";
-	body["Link"] = "github.com/vincenzoscarso";
+	body["version"] = utils::toStdString(HOST_WIRELESSINATOR_FIRMWARE_VERSION);
+	body["board"] = utils::toStdString(ARDUINO_BOARD);
+	body["developer"] = "Vincenzo Scarso";
+	body["link"] = "github.com/vincenzoscarso";
 
 	auto response = __getResponse("Informations", body.dump());
 	client.send(response.c_str());
