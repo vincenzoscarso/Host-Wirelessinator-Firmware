@@ -1,5 +1,6 @@
 #include "IPAddress.h"
 #include "WiFiClient.h"
+#include "utils.h"
 #include <ESP32Ping.h>
 #include <Host.h>
 #include <Hosts.h>
@@ -30,6 +31,8 @@ void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host);
 void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client);
 void __handleInformationsCommand(websockets::WebsocketsClient& client);
 void __handleHelpCommand(websockets::WebsocketsClient& client);
+
+std::string __getResponse(std::string header, std::string body);
 
 /*========
     Maps
@@ -99,26 +102,39 @@ void commandHandler::handleNoCommand(websockets::WebsocketsClient& client, const
   ----------------------------*/
 
 void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
+	std::string body;
 
 	if (host.isUseMagicPacketEnabled()) {
-		printInfoMessage(true, "Booting system with magic packet on host: %s", host.getName().c_str());
+		body = "Booting system with magic packet on host: ";
 		WifiHandler::sendMagicPacket(host.getMacAddress());
 	} else if (host.isUseRelayPinEnabled()) {
-		printInfoMessage(true, "Booting system with relay on host: %s", host.getName().c_str());
+		body = "Booting system with relay on host: ";
 		componentHandler::setHostRelayPinStatus(host, LOW);
 		delay(1000);
 		componentHandler::setHostRelayPinStatus(host, HIGH);
 	} else {
 		printErrorMessage(true, "Couldn't find a method to boot this host, check configuration");
+		return;
 	}
+
+	body +=  host.getName().c_str();
+	std::string response = __getResponse("Boot", body);
+	client.send(response.c_str());
+	printInfoMessage(true, "Sent response: %s", response.c_str());
 }
 
 void __handleRebootCommand(websockets::WebsocketsClient& client, Host host) {
-	printErrorMessage(true, "Reboot command is currently not implemented");
+	std::string body = "Reboot command is currently not implemented for host: " + host.getName();
+	std::string response = __getResponse("Reboot", body);
+	client.send(response.c_str());
+	printInfoMessage(true, "Sent response: %s", response.c_str());
 }
 
 void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host host) {
-	printErrorMessage(true, "ForceShutdown command is currently not implemented");
+	std::string body = "ForceShutdown command is currently not implemented for host: " + host.getName();
+	std::string response = __getResponse("ForceShutdown", body);
+	client.send(response.c_str());
+	printInfoMessage(true, "Sent response: %s", response.c_str());
 
 	/* printInfoMessage(true, "Force shutting down system on host: %s", host.getName().c_str());
 
@@ -132,14 +148,17 @@ void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host hos
 }
 
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
-	std::string response = "Host:" + host.getName() + ";Status:";
+	std::string body = "Host:" + host.getName() + ";"
+	    + "Status:";
 
 	if (Ping.ping(host.getIpAddress()))
-		response += "Online";
-	else 
-		response += "Offline";
-	
+		body += "Online";
+	else
+		body += "Offline";
+
+	std::string response = __getResponse("GetStatus", body);
 	client.send(response.c_str());
+	printInfoMessage(true, "Sent response: %s", response.c_str());
 }
 
 /*------------------------------
@@ -147,14 +166,38 @@ void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
   ------------------------------*/
 
 void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client) {
-	printInfoMessage("Sending hosts JSON to the client:\n%s", secrets::hosts_json.dump().c_str());
-	client.send(secrets::hosts_json.dump().c_str());
+	std::string response = __getResponse("GetHostsJson", secrets::hosts_json.dump());
+	client.send(response.c_str());
+	printInfoMessage(true, "Sent response: %s", response.c_str());
 }
 
 void __handleInformationsCommand(websockets::WebsocketsClient& client) {
-	printErrorMessage(true, "Informations command is currently not implemented");
+	std::string body = "Version:" + utils::toStdString(HOST_WIRELESSINATOR_FIRMWARE_VERSION) + ";"
+	    + "Board:" + utils::toStdString(ARDUINO_BOARD) + ";"
+	    + "Developer:" + "Vincenzo Scarso" + ";"
+	    + "Link:" + "github.com/vincenzoscarso";
+
+	auto response = __getResponse("Informations", body);
+	client.send(response.c_str());
+	printInfoMessage(true, "Sent response: %s", response.c_str());
 }
 
 void __handleHelpCommand(websockets::WebsocketsClient& client) {
-	printErrorMessage(true, "Help command is currently not implemented");
+	std::string body = "Boot {host_name};Reboot {host_name};ForceShutdown {host_name};GetStatus {host_name};GetHostsJson;Informations;Help";
+
+	auto response = __getResponse("Help", body);
+	client.send(response.c_str());
+	printInfoMessage(true, "Sent response: %s", response.c_str());
+}
+
+/*===========
+    Helpers
+  ===========*/
+
+/**
+Omit last newline of the header
+*/
+std::string __getResponse(std::string header, std::string body) {
+	std::string response = header + "\n-- HEADER END --\n" + body;
+	return response.c_str();
 }
