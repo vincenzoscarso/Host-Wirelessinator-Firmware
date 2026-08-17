@@ -9,9 +9,12 @@
 #include <iostream>
 #include <logHandler.h>
 #include <map>
+#include <nlohmann/json.hpp>
 #include <secrets.h>
 #include <string>
 #include <wifiHandler.h>
+
+using nlohmann::json;
 
 #define __STR_COMMAND_BOOT "Boot"
 #define __STR_COMMAND_REBOOT "Reboot"
@@ -117,7 +120,7 @@ void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
 		return;
 	}
 
-	body +=  host.getName().c_str();
+	body += host.getName().c_str();
 	std::string response = __getResponse("Boot", body);
 	client.send(response.c_str());
 	printInfoMessage(true, "Sent response: %s", response.c_str());
@@ -148,15 +151,11 @@ void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host hos
 }
 
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host) {
-	std::string body = "Host:" + host.getName() + ";"
-	    + "Status:";
+	json body;
+	body["Host"] = host.getName();
+	body["Status"] = Ping.ping(host.getIpAddress()) ? "Online" : "Offline";
 
-	if (Ping.ping(host.getIpAddress()))
-		body += "Online";
-	else
-		body += "Offline";
-
-	std::string response = __getResponse("GetStatus", body);
+	std::string response = __getResponse("GetStatus", body.dump());
 	client.send(response.c_str());
 	printInfoMessage(true, "Sent response: %s", response.c_str());
 }
@@ -172,20 +171,30 @@ void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client) {
 }
 
 void __handleInformationsCommand(websockets::WebsocketsClient& client) {
-	std::string body = "Version:" + utils::toStdString(HOST_WIRELESSINATOR_FIRMWARE_VERSION) + ";"
-	    + "Board:" + utils::toStdString(ARDUINO_BOARD) + ";"
-	    + "Developer:" + "Vincenzo Scarso" + ";"
-	    + "Link:" + "github.com/vincenzoscarso";
+	json body;
+	body["Version"] = utils::toStdString(HOST_WIRELESSINATOR_FIRMWARE_VERSION);
+	body["Board"] = utils::toStdString(ARDUINO_BOARD);
+	body["Developer"] = "Vincenzo Scarso";
+	body["Link"] = "github.com/vincenzoscarso";
 
-	auto response = __getResponse("Informations", body);
+	auto response = __getResponse("Informations", body.dump());
 	client.send(response.c_str());
 	printInfoMessage(true, "Sent response: %s", response.c_str());
 }
 
 void __handleHelpCommand(websockets::WebsocketsClient& client) {
-	std::string body = "Boot {host_name};Reboot {host_name};ForceShutdown {host_name};GetStatus {host_name};GetHostsJson;Informations;Help";
+	json body;
+	body["commands"] = {
+		"Boot {host_name}",
+		"Reboot {host_name}",
+		"ForceShutdown {host_name}",
+		"GetStatus {host_name}",
+		"GetHostsJson",
+		"Informations",
+		"Help"
+	};
 
-	auto response = __getResponse("Help", body);
+	auto response = __getResponse("Help", body.dump());
 	client.send(response.c_str());
 	printInfoMessage(true, "Sent response: %s", response.c_str());
 }
