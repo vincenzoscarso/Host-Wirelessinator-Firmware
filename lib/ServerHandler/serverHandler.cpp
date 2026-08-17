@@ -1,3 +1,4 @@
+#include "esp32-hal.h"
 #include "tiny_websockets/internals/websockets_endpoint.hpp"
 #include <ArduinoWebsockets.h>
 #include <Hosts.h>
@@ -77,7 +78,7 @@ static void __acceptNewConnections() {
 	});
 
 	printInfoMessage("Client accepted %s");
-	new_client.send("Connected\n-- HEADER END --\n");
+	__globals.getClient().send("Connected\n-- HEADER END --\nConnected");
 }
 
 static void __rejectNewConnections() {
