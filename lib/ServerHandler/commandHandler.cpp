@@ -16,7 +16,7 @@
 
 using nlohmann::json;
 
-#define __STR_COMMAND_BOOT "Boot"
+#define __STR_COMMAND_SWITCHSTATE "SwitchState"
 #define __STR_COMMAND_REBOOT "Reboot"
 #define __STR_COMMAND_FORCESHUTDOWN "ForceShutdown"
 #define __STR_COMMAND_GETSTATUS "GetStatus"
@@ -27,7 +27,7 @@ using nlohmann::json;
 bool __checkForCommandAndExcecuteInHostCommandsMap(websockets::WebsocketsClient& client, const std::string& command_name, const std::string& host_name);
 bool __checkForCommandAndExcecuteInDeviceCommandsMap(websockets::WebsocketsClient& client, const std::string& command_name);
 
-void __handleBootCommand(websockets::WebsocketsClient& client, Host host);
+void __handleSwitchStateCommand(websockets::WebsocketsClient& client, Host host);
 void __handleRebootCommand(websockets::WebsocketsClient& client, Host host);
 void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host host);
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host);
@@ -42,7 +42,7 @@ std::string __getResponse(std::string header, std::string body);
   ========*/
 
 std::map<std::string, void (*)(websockets::WebsocketsClient&, Host)> host_commands_map = {
-	{ __STR_COMMAND_BOOT, __handleBootCommand },
+	{ __STR_COMMAND_SWITCHSTATE, __handleSwitchStateCommand },
 	{ __STR_COMMAND_REBOOT, __handleRebootCommand },
 	{ __STR_COMMAND_FORCESHUTDOWN, __handleForceShutdownCommand },
 	{ __STR_COMMAND_GETSTATUS, __handleGetStatusCommand }
@@ -104,24 +104,24 @@ void commandHandler::handleNoCommand(websockets::WebsocketsClient& client, const
     Hosts' commands handlers
   ----------------------------*/
 
-void __handleBootCommand(websockets::WebsocketsClient& client, Host host) {
+void __handleSwitchStateCommand(websockets::WebsocketsClient& client, Host host) {
 	std::string body;
 
 	if (host.isUseMagicPacketEnabled()) {
-		body = "Booting system with magic packet on host: ";
+		body = "Switching system state with magic packet on host: ";
 		WifiHandler::sendMagicPacket(host.getMacAddress());
 	} else if (host.isUseRelayPinEnabled()) {
-		body = "Booting system with relay on host: ";
+		body = "Switching system state with relay on host: ";
 		componentHandler::setHostRelayPinStatus(host, LOW);
 		delay(1000);
 		componentHandler::setHostRelayPinStatus(host, HIGH);
 	} else {
-		printErrorMessage("Couldn't find a method to boot this host, check configuration");
+		printErrorMessage(true, "Couldn't find a method to switch the state of this host, check configuration");
 		return;
 	}
 
 	body += host.getName().c_str();
-	std::string response = __getResponse(__STR_COMMAND_BOOT, body);
+	std::string response = __getResponse(__STR_COMMAND_SWITCHSTATE, body);
 	client.send(response.c_str());
 	printInfoMessage("Sent response:\n%s", response.c_str());
 }
@@ -187,7 +187,7 @@ void __handleHelpCommand(websockets::WebsocketsClient& client) {
 	std::string host_name_placeholder = " {host_name}";
 
 	body["commands"] = {
-		std::string(__STR_COMMAND_BOOT) + host_name_placeholder,
+		std::string(__STR_COMMAND_SWITCHSTATE) + host_name_placeholder,
 		std::string(__STR_COMMAND_REBOOT) + host_name_placeholder,
 		std::string(__STR_COMMAND_FORCESHUTDOWN) + host_name_placeholder,
 		std::string(__STR_COMMAND_GETSTATUS) + host_name_placeholder,
