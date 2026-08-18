@@ -121,8 +121,11 @@ static void __handleClientRequests(websockets::WebsocketsClient& client, websock
 
 	std::string command = utils::trim(parts[1]);
 
-	printInfoMessage(true, "New request, got command: %s", command.c_str());
+	printInfoMessage("New request, got command: %s", command.c_str());
 	componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_ON_COMMAND);
+	
+	std::string response = "GotRequest\n-- HEADER END --\n" + str_request;
+	client.send(response.c_str());
 
 	__handleCommand(client, command);
 
