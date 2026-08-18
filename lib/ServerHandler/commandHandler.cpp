@@ -1,5 +1,6 @@
 #include "IPAddress.h"
 #include "WiFiClient.h"
+#include "tiny_websockets/client.hpp"
 #include "utils.h"
 #include <ESP32Ping.h>
 #include <Host.h>
@@ -21,6 +22,7 @@ using nlohmann::json;
 #define __STR_COMMAND_FORCESHUTDOWN "ForceShutdown"
 #define __STR_COMMAND_GETSTATUS "GetStatus"
 #define __STR_COMMAND_GETHOSTSJSON "GetHostsJson"
+#define __STR_COMMAND_REBOOTBOARD "RebootBoard"
 #define __STR_COMMAND_INFORMATIONS "Informations"
 #define __STR_COMMAND_HELP "Help"
 
@@ -32,6 +34,7 @@ void __handleRebootCommand(websockets::WebsocketsClient& client, Host host);
 void __handleForceShutdownCommand(websockets::WebsocketsClient& client, Host host);
 void __handleGetStatusCommand(websockets::WebsocketsClient& client, Host host);
 void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client);
+void __handleRebootBoardCommand(websockets::WebsocketsClient& client);
 void __handleInformationsCommand(websockets::WebsocketsClient& client);
 void __handleHelpCommand(websockets::WebsocketsClient& client);
 
@@ -50,6 +53,7 @@ std::map<std::string, void (*)(websockets::WebsocketsClient&, Host)> host_comman
 
 std::map<std::string, void (*)(websockets::WebsocketsClient&)> device_commands_map = {
 	{ __STR_COMMAND_GETHOSTSJSON, __handleGetHostsJsonCommand },
+	{ __STR_COMMAND_REBOOTBOARD, __handleRebootBoardCommand },
 	{ __STR_COMMAND_INFORMATIONS, __handleInformationsCommand },
 	{ __STR_COMMAND_HELP, __handleHelpCommand }
 };
@@ -168,6 +172,17 @@ void __handleGetHostsJsonCommand(websockets::WebsocketsClient& client) {
 	std::string response = __getResponse(__STR_COMMAND_GETHOSTSJSON, secrets::hosts_json.dump());
 	client.send(response.c_str());
 	printInfoMessage("Sent response:\n%s", response.c_str());
+}
+
+void __handleRebootBoardCommand(websockets::WebsocketsClient& client) {
+	std::string response = __getResponse(__STR_COMMAND_REBOOTBOARD, "This board is rebooting, closing connection");
+	client.send(response.c_str());
+	printInfoMessage("Sent response:\n%s", response.c_str());
+	
+	client.close(); // REMEMBER: doing this here leaves the "is_client_connected" flag to true in "ServerGlobals", but it's not a problem NOW because board is rebooting anyway
+	
+	printInfoMessage("BOARD IS REBOOTING NOW!");
+	ESP.restart();
 }
 
 void __handleInformationsCommand(websockets::WebsocketsClient& client) {
