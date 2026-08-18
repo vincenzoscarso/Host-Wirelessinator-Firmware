@@ -101,30 +101,29 @@ static void __handleClientRequests(websockets::WebsocketsClient& client, websock
 		__globals.setIsRequestBeingHandled(false);
 		return;
 	}
-
+	
 	std::string str_request = utils::toStdString(raw_request.c_str());
-	printInfoMessage(true, "Got request:\n%s", str_request.c_str());
-
+	
 	if (__updateConnectionMode(str_request) != true) {
 		printErrorMessage(true, "Request ignored: Missing foundamental headers");
 		__globals.setIsRequestBeingHandled(false);
 		return;
 	}
-
+	
 	auto parts = utils::split(str_request, "-- HEADER END --\n");
-
+	
 	if (parts.size() < 2) {
 		printErrorMessage(true, "Request ignored: no body after header delimiter");
 		__globals.setIsRequestBeingHandled(false);
 		return;
 	}
-
+	
 	std::string command = utils::trim(parts[1]);
-
+	
 	printInfoMessage("New request, got command: %s", command.c_str());
 	componentHandler::blinkLedBuiltIn(componentHandler::BLINK_RIPETITIONS_ON_COMMAND);
 	
-	std::string response = "GotRequest\n-- HEADER END --\n" + str_request;
+	std::string response = "GotCommand\n-- HEADER END --\n" + command;
 	client.send(response.c_str());
 
 	__handleCommand(client, command);
