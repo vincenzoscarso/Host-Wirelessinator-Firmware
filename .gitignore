@@ -6,3 +6,4 @@
 .vscode/ipch
 lib/Secrets
 protocol.txt
+compile_commands.json
